@@ -1,0 +1,71 @@
+name: Gerar audiobook - Logística sustentável
+
+on:
+  push:
+    paths:
+      - "audiobook-logistica/**"
+      - ".github/workflows/audiobook-logistica.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: audiobook-logistica-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  gerar-audiobook:
+    name: Sintetizar e publicar MP3
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Baixar repositório
+        uses: actions/checkout@v4
+
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: audiobook-logistica/requirements.txt
+
+      - name: Instalar FFmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes ffmpeg
+
+      - name: Instalar Piper TTS
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r audiobook-logistica/requirements.txt
+
+      - name: Baixar modelo de voz brasileira
+        run: |
+          mkdir -p audiobook-logistica/models
+          python -m piper.download_voices pt_BR-faber-medium --download-dir audiobook-logistica/models
+
+      - name: Gerar capítulos e audiobook completo
+        working-directory: audiobook-logistica
+        env:
+          PIPER_MODEL: pt_BR-faber-medium
+          PIPER_LENGTH_SCALE: "1.0"
+        run: python scripts/gerar_audiobook.py
+
+      - name: Verificar arquivos gerados
+        run: |
+          test -s audiobook-logistica/dist/audiobook-logistica-sustentavel.mp3
+          test -s audiobook-logistica/dist/01-estudos-de-caso.mp3
+          test -s audiobook-logistica/dist/02-beneficios.mp3
+          test -s audiobook-logistica/dist/03-panorama-legal.mp3
+          test -s audiobook-logistica/dist/04-desafios-e-encerramento.mp3
+          ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 audiobook-logistica/dist/audiobook-logistica-sustentavel.mp3
+
+      - name: Disponibilizar audiobook para download
+        uses: actions/upload-artifact@v4
+        with:
+          name: audiobook-logistica-sustentavel
+          path: audiobook-logistica/dist/*.mp3
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 30
