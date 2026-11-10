@@ -73,7 +73,7 @@ def main() -> None:
 
     concat_file = OUT_DIR / "concat.txt"
     concat_file.write_text(
-        "".join(f"file 'dist/{path.name}'\n" for path in wav_files),
+        "".join(f"file '{path.name}'\\n" for path in wav_files),
         encoding="utf-8",
     )
 
