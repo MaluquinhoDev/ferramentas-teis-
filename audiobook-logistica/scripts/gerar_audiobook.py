@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -51,15 +52,17 @@ def main() -> None:
         mp3_path = OUT_DIR / f"{chapter_name}.mp3"
 
         print(f"Gerando capítulo: {chapter_name}")
-        run(
-            [
-                "piper",
-                "--model", MODEL,
-                "--output_file", str(wav_path),
-                "--length_scale", VOICE_SPEED,
-            ],
-            input_text=text,
-        )
+        text_path = OUT_DIR / f"{chapter_name}.txt"
+        text_path.write_text(text, encoding="utf-8")
+        run([
+            sys.executable, "-m", "piper",
+            "--data-dir", str(ROOT / "models"),
+            "-m", MODEL,
+            "-f", str(wav_path),
+            "--length-scale", VOICE_SPEED,
+            "--input-file", str(text_path),
+        ])
+        text_path.unlink(missing_ok=True)
         run([
             "ffmpeg", "-y", "-hide_banner", "-loglevel", "error",
             "-i", str(wav_path),
