@@ -1,0 +1,12 @@
+{
+  "name": "Voz — Gerador de audiobook",
+  "short_name": "Voz",
+  "description": "Converta textos em audiobooks MP3.",
+  "lang": "pt-BR",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#101820",
+  "theme_color": "#101820",
+  "icons": [{"src":"./icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
+}
