@@ -38,36 +38,41 @@ jobs:
           from pathlib import Path
           json.loads(Path("app/manifest.webmanifest").read_text(encoding="utf-8"))
           for path in ("app/index.html", "app/app.js", "app/config.js", "app/sw.js"):
-              text = Path(path).read_text(encoding="utf-8")
-              if not text.strip():
+              if not Path(path).read_text(encoding="utf-8").strip():
                   raise SystemExit(f"Arquivo vazio: {path}")
           print("Estrutura do PWA validada.")
           PY
 
-      - name: Criar pacote ZIP para Linux e celular
+      - name: Montar pacote com index.html na raiz
+        shell: bash
         run: |
-          mkdir -p dist
-          cp -R app dist/voz-app
-          cat > dist/LEIA-ME.txt <<'EOF'
+          set -euo pipefail
+          mkdir -p dist/pacote
+          cp -R app/. dist/pacote/
+          cat > dist/pacote/LEIA-ME.txt <<'EOF'
           VOZ - APLICATIVO DE TEXTO PARA AUDIOBOOK
 
-          Este pacote contém a interface web progressiva (PWA).
-          Para executar localmente em Linux:
-            1. Extraia o ZIP.
-            2. Entre na pasta voz-app.
+          IMPORTANTE: os arquivos do aplicativo ficam diretamente nesta pasta.
+          Para executar no Linux Mint:
+            1. Extraia todo o ZIP para uma pasta.
+            2. Abra um terminal dentro da pasta extraída (onde está index.html).
             3. Execute: python3 -m http.server 8080
-            4. Abra http://localhost:8080 no navegador.
+            4. Abra: http://localhost:8080
 
-          Para instalar como aplicativo no celular ou desktop, a interface
-          precisa estar hospedada em HTTPS e a API Cloudflare precisa estar
-          implantada e configurada conforme cloudflare/SETUP.md.
+          Mantenha o terminal aberto enquanto usar o aplicativo.
+          Para encerrar o servidor, pressione Ctrl+C no terminal.
 
-          Antes de usar a conversão, configure app/config.js com a URL real
-          do Cloudflare Worker. O endereço provisório não funciona.
+          A interface funciona localmente, mas a conversão MP3 depende da
+          implantação do Cloudflare Worker/R2 e da URL configurada em config.js.
+          O endereço provisório COLOQUE-SEU-WORKER não permite converter.
+          Para instalação PWA, é necessário hospedar em HTTPS ou localhost.
           EOF
-          cd dist
-          zip -qr voz-app-linux-celular.zip voz-app LEIA-ME.txt
+          cd dist/pacote
+          zip -qr ../voz-app-linux-celular.zip .
+          cd ..
           sha256sum voz-app-linux-celular.zip > voz-app-linux-celular.sha256
+          unzip -l voz-app-linux-celular.zip
+          unzip -Z1 voz-app-linux-celular.zip | grep -qx 'index.html'
 
       - name: Disponibilizar pacote para download
         uses: actions/upload-artifact@v4
