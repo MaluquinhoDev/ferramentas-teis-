@@ -1,0 +1,14 @@
+name = "voz-audiobook-api"
+main = "worker.js"
+compatibility_date = "2026-11-12"
+
+[[r2_buckets]]
+binding = "AUDIO_JOBS"
+bucket_name = "voz-audiobook-jobs"
+
+[vars]
+GITHUB_OWNER = "MaluquinhoDev"
+GITHUB_REPO = "ferramentas-teis-"
+GITHUB_WORKFLOW_FILE = "audiobook-dinamico.yml"
+GITHUB_REF = "main"
+ALLOWED_ORIGIN = "https://maluquinhodev.github.io"
