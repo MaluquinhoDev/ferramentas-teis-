@@ -12,3 +12,9 @@ GITHUB_REPO = "ferramentas-teis-"
 GITHUB_WORKFLOW_FILE = "audiobook-dinamico.yml"
 GITHUB_REF = "main"
 ALLOWED_ORIGIN = "https://maluquinhodev.github.io"
+# Limita chamadas por IP para reduzir abuso do endpoint público.
+[[unsafe.bindings]]
+name = "JOB_LIMITER"
+type = "ratelimit"
+namespace_id = "1001"
+simple = { limit = 3, period = 60 }
