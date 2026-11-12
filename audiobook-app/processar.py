@@ -10,6 +10,15 @@ request = urllib.request.Request(f"{base}/internal/jobs/{job_id}/input", headers
 with urllib.request.urlopen(request, timeout=60) as response:
     payload = json.loads(response.read().decode("utf-8"))
 
+status_req = urllib.request.Request(
+    f"{base}/internal/jobs/{job_id}/status",
+    data=json.dumps({"status":"processing"}).encode(),
+    headers={**headers,"Content-Type":"application/json"},
+    method="POST"
+)
+with urllib.request.urlopen(status_req, timeout=30) as response:
+    response.read()
+
 text = str(payload.get("text", "")).strip()
 if not text or len(text) > 120000:
     raise ValueError("Texto vazio ou acima do limite permitido.")
@@ -42,12 +51,4 @@ subprocess.run([
 if not mp3.is_file() or mp3.stat().st_size < 1000:
     raise RuntimeError("O arquivo MP3 não foi gerado corretamente.")
 
-status_req = urllib.request.Request(
-    f"{base}/internal/jobs/{job_id}/status",
-    data=json.dumps({"status":"processing"}).encode(),
-    headers={**headers,"Content-Type":"application/json"},
-    method="POST"
-)
-with urllib.request.urlopen(status_req, timeout=30) as response:
-    response.read()
 print(f"MP3 criado: {mp3.stat().st_size} bytes")
