@@ -1,4 +1,4 @@
-name: Publicar aplicativo Voz
+name: Empacotar aplicativo Voz
 
 on:
   push:
@@ -10,28 +10,71 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
-  group: pages-voz
+  group: voz-app-package
   cancel-in-progress: true
 
 jobs:
-  publicar:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
+  empacotar:
+    name: Validar e empacotar aplicativo
+    runs-on: ubuntu-24.04
     steps:
       - name: Baixar repositório
         uses: actions/checkout@v4
-      - name: Preparar GitHub Pages
-        uses: actions/configure-pages@v5
-      - name: Empacotar aplicativo
-        uses: actions/upload-pages-artifact@v3
+
+      - name: Validar arquivos do aplicativo
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s app/index.html
+          test -s app/styles.css
+          test -s app/app.js
+          test -s app/config.js
+          test -s app/manifest.webmanifest
+          test -s app/sw.js
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          json.loads(Path("app/manifest.webmanifest").read_text(encoding="utf-8"))
+          for path in ("app/index.html", "app/app.js", "app/config.js", "app/sw.js"):
+              text = Path(path).read_text(encoding="utf-8")
+              if not text.strip():
+                  raise SystemExit(f"Arquivo vazio: {path}")
+          print("Estrutura do PWA validada.")
+          PY
+
+      - name: Criar pacote ZIP para Linux e celular
+        run: |
+          mkdir -p dist
+          cp -R app dist/voz-app
+          cat > dist/LEIA-ME.txt <<'EOF'
+          VOZ - APLICATIVO DE TEXTO PARA AUDIOBOOK
+
+          Este pacote contém a interface web progressiva (PWA).
+          Para executar localmente em Linux:
+            1. Extraia o ZIP.
+            2. Entre na pasta voz-app.
+            3. Execute: python3 -m http.server 8080
+            4. Abra http://localhost:8080 no navegador.
+
+          Para instalar como aplicativo no celular ou desktop, a interface
+          precisa estar hospedada em HTTPS e a API Cloudflare precisa estar
+          implantada e configurada conforme cloudflare/SETUP.md.
+
+          Antes de usar a conversão, configure app/config.js com a URL real
+          do Cloudflare Worker. O endereço provisório não funciona.
+          EOF
+          cd dist
+          zip -qr voz-app-linux-celular.zip voz-app LEIA-ME.txt
+          sha256sum voz-app-linux-celular.zip > voz-app-linux-celular.sha256
+
+      - name: Disponibilizar pacote para download
+        uses: actions/upload-artifact@v4
         with:
-          path: app
-      - name: Publicar
-        id: deployment
-        uses: actions/deploy-pages@v4
+          name: voz-app-linux-celular
+          path: |
+            dist/voz-app-linux-celular.zip
+            dist/voz-app-linux-celular.sha256
+          if-no-files-found: error
+          retention-days: 30
