@@ -1,0 +1,71 @@
+name: Gerar audiobook sob demanda
+
+on:
+  workflow_dispatch:
+    inputs:
+      job_id:
+        description: "Identificador da solicitação armazenada no Worker"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: audiobook-${{ inputs.job_id }}
+  cancel-in-progress: false
+
+jobs:
+  gerar:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Baixar código
+        uses: actions/checkout@v4
+
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Instalar FFmpeg e Piper
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes ffmpeg
+          python -m pip install --upgrade pip
+          python -m pip install -r audiobook-logistica/requirements.txt
+
+      - name: Baixar voz brasileira
+        run: |
+          mkdir -p /tmp/piper-model
+          python -m piper.download_voices pt_BR-faber-medium --download-dir /tmp/piper-model
+
+      - name: Converter texto em MP3
+        env:
+          JOB_ID: ${{ inputs.job_id }}
+          WORKER_URL: ${{ secrets.WORKER_URL }}
+          WORKER_SHARED_SECRET: ${{ secrets.WORKER_SHARED_SECRET }}
+        run: python audiobook-app/processar.py
+
+      - name: Publicar áudio no armazenamento privado
+        env:
+          JOB_ID: ${{ inputs.job_id }}
+          WORKER_URL: ${{ secrets.WORKER_URL }}
+          WORKER_SHARED_SECRET: ${{ secrets.WORKER_SHARED_SECRET }}
+        run: python audiobook-app/publicar.py
+
+      - name: Marcar falha no serviço
+        if: failure()
+        env:
+          JOB_ID: ${{ inputs.job_id }}
+          WORKER_URL: ${{ secrets.WORKER_URL }}
+          WORKER_SHARED_SECRET: ${{ secrets.WORKER_SHARED_SECRET }}
+        run: python audiobook-app/reportar_falha.py
+
+      - name: Guardar cópia como artefato do GitHub
+        uses: actions/upload-artifact@v4
+        with:
+          name: audiobook-${{ inputs.job_id }}
+          path: /tmp/audiobook.mp3
+          if-no-files-found: warn
+          retention-days: 7
