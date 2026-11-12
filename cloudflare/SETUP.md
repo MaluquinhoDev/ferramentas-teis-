@@ -65,4 +65,4 @@ O texto não é colocado nos parâmetros do workflow, no código-fonte ou nos lo
 - Arquivos de entrada: texto simples UTF-8 (.txt), até 700 KB.
 - Saída: MP3, voz brasileira Piper Faber.
 - A execução depende da cota e disponibilidade do GitHub Actions e do Cloudflare R2/Workers.
-- Para uso público, o Worker precisa de controle adicional contra abuso (por exemplo, autenticação, rate limit e CAPTCHA).
+- O Worker aplica rate limit de 3 solicitações por IP por minuto. Para disponibilização irrestrita ao público, ainda é necessário adicionar autenticação e/ou Turnstile.
