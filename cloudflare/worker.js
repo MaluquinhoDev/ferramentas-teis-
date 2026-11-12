@@ -14,7 +14,7 @@ export default {
   async fetch(request, env) {
     const origin = request.headers.get("Origin") || "";
     const allowed = env.ALLOWED_ORIGIN || "*";
-    const responseOrigin = allowed === "*" || origin === allowed ? (allowed === "*" ? "*" : allowed) : "null";
+    const responseOrigin = !origin ? allowed : (allowed === "*" || origin === allowed ? (allowed === "*" ? "*" : allowed) : "null");
     if (request.method === "OPTIONS") return new Response(null,{status:204,headers:cors(responseOrigin)});
     if (responseOrigin === "null") return json({error:"Origem não autorizada."},403,"null");
     const url = new URL(request.url);
