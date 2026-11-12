@@ -45,7 +45,7 @@ Edite `app/config.js` e substitua `https://COLOQUE-SEU-WORKER.workers.dev` pela 
 
 ## 6. Publicar o GitHub Pages
 
-No GitHub, abra **Settings → Pages** e selecione **GitHub Actions** como fonte. O workflow `publicar-app-voz.yml` publica o conteúdo da pasta `app`.
+No GitHub, abra **Settings → Pages** e selecione manualmente **GitHub Actions** como fonte de publicação. O token padrão do Actions deste repositório não tem permissão administrativa para ativar o Pages por API. Depois dessa ativação única, o workflow `publicar-app-voz.yml` publica o conteúdo da pasta `app` automaticamente.
 
 O endereço do projeto será `https://maluquinhodev.github.io/ferramentas-teis-/`.
 
