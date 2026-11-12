@@ -49,6 +49,9 @@ export default {
     }
 
     if (parts[0] === "api" && parts[1] === "jobs" && request.method === "POST" && parts.length === 2) {
+      const ip = request.headers.get("CF-Connecting-IP") || "unknown";
+      const limit = await env.JOB_LIMITER.limit({key:ip});
+      if (!limit.success) return json({error:"Limite temporário atingido. Aguarde um minuto antes de enviar outro texto."},429,responseOrigin);
       let body;
       try { body = await request.json(); } catch { return json({error:"JSON inválido."},400,responseOrigin); }
       const text = typeof body.text === "string" ? body.text.trim() : "";
