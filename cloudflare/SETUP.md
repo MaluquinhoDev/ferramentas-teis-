@@ -45,7 +45,9 @@ Edite `app/config.js` e substitua `https://COLOQUE-SEU-WORKER.workers.dev` pela 
 
 ## 6. Publicar o GitHub Pages
 
-No GitHub, abra **Settings → Pages** e selecione manualmente **GitHub Actions** como fonte de publicação. O token padrão do Actions deste repositório não tem permissão administrativa para ativar o Pages por API. Depois dessa ativação única, o workflow `publicar-app-voz.yml` publica o conteúdo da pasta `app` automaticamente.
+No GitHub, abra **Settings → Pages** e selecione **GitHub Actions** como fonte de publicação. Essa ativação inicial precisa ser feita manualmente: o token padrão do Actions deste repositório não tem permissão administrativa para habilitar o Pages.
+
+Depois, abra **Actions → Publicar aplicativo Voz no GitHub Pages → Run workflow**. O workflow valida o PWA, envia a pasta `app` como artefato do Pages e publica o site. Este workflow é manual (`workflow_dispatch`) para não gerar falhas enquanto o Pages ainda não estiver habilitado.
 
 O endereço do projeto será `https://maluquinhodev.github.io/ferramentas-teis-/`.
 
