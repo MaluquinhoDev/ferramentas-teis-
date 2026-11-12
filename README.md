@@ -38,3 +38,15 @@ audiobook-logistica/
 ```
 
 Os arquivos de áudio são gerados durante a execução e não são versionados no Git.
+
+
+## Aplicativo Voz — conversão de texto em audiobook
+
+O projeto agora inclui um aplicativo web progressivo (PWA) responsivo para celular e Linux, com entrada de texto/arquivo TXT, controle de velocidade, acompanhamento do processamento e download do MP3.
+
+- Interface: [pasta app](app/)
+- API segura e armazenamento temporário: [configuração Cloudflare](cloudflare/SETUP.md)
+- Workflow sob demanda: [audiobook-dinamico.yml](.github/workflows/audiobook-dinamico.yml)
+- Publicação do PWA: [publicar-app-voz.yml](.github/workflows/publicar-app-voz.yml)
+
+**Importante:** a implantação exige configurar Cloudflare R2/Worker e os segredos descritos em `cloudflare/SETUP.md`. O código já está no repositório, mas a API e o app ainda não estarão operacionais até essa configuração.
