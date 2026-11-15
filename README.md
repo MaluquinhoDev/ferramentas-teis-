@@ -34,6 +34,25 @@ npm run android:build
 
 O projeto Android é gerado no processo de compilação e fica ignorado pelo Git; a fonte de configuração é `capacitor.config.json`.
 
+## Narrativa visual — atualização 0.4
+
+A atualização amplia o vocabulário visual do editor com ferramentas diretas para composição e ritmo:
+
+- Ferramenta de onomatopeia com texto editável, estilos de impacto, suave, elétrico e manual.
+- Linhas de movimento radiais para sugerir velocidade, impacto e direção.
+- Controles de enquadramento de storyboard: regra dos terços, eixo central e diagonais, com seleção da referência visual.
+- Páginas múltiplas usadas como sequência de storyboard; os modelos existentes continuam disponíveis para estruturar a página.
+- Os novos objetos são armazenados junto com os demais elementos no JSON do projeto e exportados na imagem da página.
+
+As referências de narrativa visual que fundamentaram esta etapa incluem composição de planos, ritmo de quadros, sarjetas, transições entre painéis, lettering, efeitos sonoros e leitura vertical. Os guias de enquadramento são ferramentas de apoio: não substituem decisões narrativas nem impõem uma regra universal.
+
+### Referências de narrativa visual
+
+- Clip Studio Paint — [planejamento e composição de quadrinhos](https://www.clipstudio.net/en/comics-manga/), [storyboard e organização de quadros](https://tips.clip-studio.com/en-us/articles/4811).
+- MediaSmarts — [gramática visual dos quadrinhos](https://mediasmarts.ca/digital-media-literacy/media-issues/digital-media-literacy-fundamentals/comics-graphic-novels).
+- Scottish Book Trust — [Graphic novels: visual storytelling](https://www.scottishbooktrust.com/).
+- WEBTOON — [Creator Handbook](https://webtooncanvas.zendesk.com/hc/en-us).
+
 ## Limitações da versão 0.2
 Ainda não há pressão de caneta, camadas raster independentes, modelos 3D, vetorização, OCR, animação, colaboração em tempo real ou exportação profissional CMYK/PDF. O desenho usa Canvas 2D dentro do WebView; o empacotamento Android não transforma esse motor em renderização nativa.
 
