@@ -142,6 +142,8 @@ A implementação continua sendo um editor Canvas 2D compacto. Ainda não oferec
 **Limites desta etapa:** ainda não há balde de preenchimento com tolerância, seleção livre/laço, Bézier, simetria, réguas de perspectiva, pincéis texturizados ou pressão de caneta. O estabilizador é um filtro de posição simples, não um motor avançado de estabilização com previsão de trajetória.
 
 
-## Assinatura Android — atualização 0.9
+## Assinatura Android
 
-O workflow aceita uma keystore persistente por meio dos secrets `QUADRA_KEYSTORE_BASE64`, `QUADRA_KEYSTORE_PASSWORD`, `QUADRA_KEY_ALIAS` e `QUADRA_KEY_PASSWORD`. Com os quatro secrets válidos, debug e release usam a mesma chave e a compilação verifica a assinatura. Sem esses secrets, o APK debug usa a chave temporária padrão do runner e não garante atualização sobre instalação assinada com outro certificado. A chave precisa ser criada uma única vez e armazenada nos secrets do repositório. Gere-a em um computador confiável com `keytool -genkeypair -v -keystore quadra-release.jks -alias quadra -keyalg RSA -keysize 4096 -validity 10000`. Converta o arquivo para Base64 com `base64 -w 0 quadra-release.jks` (Linux) e cadastre a saída como `QUADRA_KEYSTORE_BASE64`; cadastre também a senha do keystore em `QUADRA_KEYSTORE_PASSWORD`, o alias `quadra` em `QUADRA_KEY_ALIAS` e a senha da chave em `QUADRA_KEY_PASSWORD`, em Settings → Secrets and variables → Actions. Nunca versione o arquivo `.jks` nem publique a saída Base64. Depois de configurar os quatro secrets, o workflow passa a gerar o APK debug e o release com o mesmo certificado.
+O workflow publica um APK de depuração assinado automaticamente com a chave de depuração temporária do runner. Esse APK serve para testes e não garante atualização de uma instalação assinada com outro certificado.
+
+A assinatura de uma versão de distribuição deve usar uma keystore nova, criada e mantida fora do repositório, com os dados armazenados exclusivamente nos GitHub Actions Secrets. A keystore anteriormente versionada foi exposta e não deve ser reutilizada. A exclusão do arquivo da versão atual não remove cópias presentes no histórico Git.
