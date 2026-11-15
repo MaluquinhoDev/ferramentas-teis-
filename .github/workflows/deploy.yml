@@ -68,27 +68,30 @@ jobs:
         run: |
           python - <<'PY'
           import os
-          import re
           from pathlib import Path
 
           gradle = Path("android/app/build.gradle")
-          text = gradle.read_text(encoding="utf-8")
+          lines = gradle.read_text(encoding="utf-8").splitlines()
           code = int(os.environ["QUADRA_VERSION_CODE"])
+          code_count = 0
+          name_count = 0
 
-          text, code_count = re.subn(
-              r"(?m)^([ ]*)versionCode\s+\d+\s*$",
-              lambda match: f"{match.group(1)}versionCode {code}",
-              text,
-              count=1,
-          )
-          text, name_count = re.subn(
-              r'(?m)^([ ]*)versionName\s+"[^"]*"\s*              lambda match: f'{match.group(1)}versionName "0.9.{code}"',
-              text,
-              count=1,
-          )
+          for index, line in enumerate(lines):
+              stripped = line.strip()
+              indent = line[:len(line) - len(line.lstrip())]
+              if stripped.startswith("versionCode "):
+                  lines[index] = f"{indent}versionCode {code}"
+                  code_count += 1
+              elif stripped.startswith("versionName "):
+                  lines[index] = f'{indent}versionName "0.9.{code}"'
+                  name_count += 1
+
           if code_count != 1 or name_count != 1:
-              raise SystemExit("Não foi possível atualizar versionCode/versionName no build.gradle gerado.")
-          gradle.write_text(text, encoding="utf-8")
+              raise SystemExit(
+                  f"Esperava uma ocorrência de cada versão; encontrei code={code_count}, name={name_count}."
+              )
+
+          gradle.write_text("\\n".join(lines) + "\\n", encoding="utf-8")
           print(f"Versão Android configurada: 0.9.{code} (code {code}).")
           PY
 
