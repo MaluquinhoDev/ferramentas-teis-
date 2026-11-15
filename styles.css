@@ -48,3 +48,6 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .page-row button:first-child{flex:1;text-align:left}
 .page-row button{min-width:36px;min-height:40px;padding:6px}
 @media(max-width:600px){.layer-row button{min-height:44px}.page-row button{min-height:44px}}
+
+/* Selection tool feedback */
+.tool[data-tool="select"]{font-size:20px}
