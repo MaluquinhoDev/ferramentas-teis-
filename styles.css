@@ -459,3 +459,24 @@
     *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
   }
 }
+
+
+/* Panel workshop — compact controls for page composition. */
+.panel-workshop input[type="number"] {
+  display: block;
+  width: 100%;
+  min-height: 38px;
+  margin-top: 5px;
+  padding: 7px 9px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+.panel-workshop .hint {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
