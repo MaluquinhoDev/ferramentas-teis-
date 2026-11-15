@@ -39,13 +39,18 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v4
         with:
-          accept-android-sdk-licenses: true
+          # Avoid the action's interactive sdkmanager --licenses prompt.
+          # Licenses are accepted explicitly in the next step.
+          accept-android-sdk-licenses: false
 
       - name: Accept Android SDK licenses non-interactively
         shell: bash
         run: |
-          set -e
-          yes | sdkmanager --sdk_root="$ANDROID_HOME" --licenses
+          set -euo pipefail
+          yes | sdkmanager --sdk_root="$ANDROID_HOME" --licenses || status=$?
+          if [ "${status:-0}" -ne 0 ] && [ "${status:-0}" -ne 141 ]; then
+            exit "$status"
+          fi
 
       - name: Install Capacitor dependencies
         run: npm install --no-audit --no-fund
