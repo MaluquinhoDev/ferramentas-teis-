@@ -1,0 +1,7 @@
+{
+  "appId": "com.maluquinhodev.quadra",
+  "appName": "Quadra",
+  "webDir": "dist",
+  "bundledWebRuntime": false,
+  "android": {}
+}
