@@ -80,6 +80,8 @@ jobs:
           test -s quests.css
           test -s quests.js
           test -s icon.svg
+          test -s quadra-icon.png
+          test -s native/android/res/drawable-nodpi/quadra_icon.png
           test -s native/android/res/drawable/ic_launcher_foreground.xml
           test -s native/android/res/drawable/ic_launcher_monochrome.xml
           test -s native/android/res/drawable/quadra_icon_background.xml
@@ -94,9 +96,10 @@ jobs:
           import xml.etree.ElementTree as ET
           manifest=json.load(open('manifest.webmanifest', encoding='utf-8'))
           assert manifest['short_name']=='Quadra'
-          assert any(i.get('src')=='./icon.svg' for i in manifest['icons'])
+          assert any(i.get('src')=='./quadra-icon.png' and i.get('sizes')=='192x192' for i in manifest['icons'])
           for path in [
               'native/android/res/drawable/ic_launcher_foreground.xml',
+              'native/android/res/drawable-nodpi/quadra_icon.png',
               'native/android/res/drawable/ic_launcher_monochrome.xml',
               'native/android/res/mipmap-anydpi/ic_launcher.xml',
               'native/android/res/mipmap-anydpi-v26/ic_launcher.xml',
@@ -152,9 +155,10 @@ jobs:
         run: |
           set -euo pipefail
           RES_DIR=android/app/src/main/res
-          mkdir -p "$RES_DIR/drawable" "$RES_DIR/mipmap-anydpi" "$RES_DIR/mipmap-anydpi-v26" "$RES_DIR/values"
+          mkdir -p "$RES_DIR/drawable" "$RES_DIR/drawable-nodpi" "$RES_DIR/mipmap-anydpi" "$RES_DIR/mipmap-anydpi-v26" "$RES_DIR/values"
           rm -f "$RES_DIR/mipmap-anydpi-v26/ic_launcher.xml" "$RES_DIR/mipmap-anydpi-v26/ic_launcher_round.xml"
           cp native/android/res/drawable/ic_launcher_foreground.xml "$RES_DIR/drawable/ic_launcher_foreground.xml"
+          cp native/android/res/drawable-nodpi/quadra_icon.png "$RES_DIR/drawable-nodpi/quadra_icon.png"
           cp native/android/res/drawable/ic_launcher_monochrome.xml "$RES_DIR/drawable/ic_launcher_monochrome.xml"
           cp native/android/res/drawable/quadra_icon_background.xml "$RES_DIR/drawable/quadra_icon_background.xml"
           cp native/android/res/mipmap-anydpi/ic_launcher.xml "$RES_DIR/mipmap-anydpi/ic_launcher.xml"
@@ -178,6 +182,8 @@ jobs:
           print('Launcher icon and roundIcon registered in AndroidManifest.xml')
           PY
           test -s "$RES_DIR/drawable/ic_launcher_foreground.xml"
+          test -s "$RES_DIR/drawable-nodpi/quadra_icon.png"
+          grep -Fq "@drawable/quadra_icon" "$RES_DIR/drawable/ic_launcher_foreground.xml"
           test -s "$RES_DIR/drawable/ic_launcher_monochrome.xml"
           grep -Fq 'android:icon="@mipmap/ic_launcher"' android/app/src/main/AndroidManifest.xml
           grep -Fq 'android:roundIcon="@mipmap/ic_launcher_round"' android/app/src/main/AndroidManifest.xml
@@ -194,6 +200,7 @@ jobs:
           assert app.get(ns + 'roundIcon') == '@mipmap/ic_launcher_round'
           for resource in [
               'drawable/ic_launcher_foreground.xml',
+              'drawable-nodpi/quadra_icon.png',
               'drawable/ic_launcher_monochrome.xml',
               'mipmap-anydpi/ic_launcher.xml',
               'mipmap-anydpi-v26/ic_launcher.xml',
