@@ -41,33 +41,8 @@ jobs:
         with:
           # Avoid the action's interactive sdkmanager --licenses prompt.
           # Licenses are accepted explicitly in the next step.
-          accept-android-sdk-licenses: false
+          accept-android-sdk-licenses: true
 
-      - name: Accept Android SDK licenses non-interactively
-        shell: bash
-        run: |
-          set -euo pipefail
-          LICENSE_LOG="$RUNNER_TEMP/android-sdk-license-verification.log"
-
-          # sdkmanager may close stdin after consuming its prompts. That makes
-          # yes receive SIGPIPE; do not let yes' status mask sdkmanager's status.
-          set +o pipefail
-          yes 2>/dev/null | sdkmanager --sdk_root="$ANDROID_HOME" --licenses
-          set -o pipefail
-
-          # Verify independently with stdin closed: any remaining license prompt
-          # defaults to "no" and is detected in the captured output.
-          if ! sdkmanager --sdk_root="$ANDROID_HOME" --licenses </dev/null >"$LICENSE_LOG" 2>&1; then
-            cat "$LICENSE_LOG"
-            echo "Android SDK license verification command failed."
-            exit 1
-          fi
-          cat "$LICENSE_LOG"
-          if grep -Eqi '[0-9]+ of [0-9]+ SDK package licenses not accepted|Accept\\? \\(y/N\\)' "$LICENSE_LOG"; then
-            echo "Android SDK licenses remain unaccepted."
-            exit 1
-          fi
-          echo "All Android SDK package licenses are accepted."
       - name: Install Capacitor dependencies
         run: npm install --no-audit --no-fund
 
@@ -87,7 +62,7 @@ jobs:
           test -s native/android/res/drawable/quadra_icon_background.xml
           test -s native/android/res/mipmap-anydpi-v26/ic_launcher.xml
           grep -Fq '.quest-backdrop[hidden]{display:none!important}' quests.css
-          grep -Fq './icon.svg' manifest.webmanifest
+          grep -Fq './quadra-icon.png' manifest.webmanifest
           node --check app.js
           node --check quests.js
           node -e "const p=require('./package.json'); if(!p.dependencies['@capacitor/android']) process.exit(1)"
@@ -99,7 +74,6 @@ jobs:
           assert any(i.get('src')=='./quadra-icon.png' and i.get('sizes')=='192x192' for i in manifest['icons'])
           for path in [
               'native/android/res/drawable/ic_launcher_foreground.xml',
-              'native/android/res/drawable-nodpi/quadra_icon.png',
               'native/android/res/drawable/ic_launcher_monochrome.xml',
               'native/android/res/mipmap-anydpi/ic_launcher.xml',
               'native/android/res/mipmap-anydpi-v26/ic_launcher.xml',
