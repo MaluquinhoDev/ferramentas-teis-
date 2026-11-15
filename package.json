@@ -4,7 +4,7 @@
   "private": true,
   "description": "Quadra — estúdio móvel de HQ digital",
   "scripts": {
-    "prepare:web": "node -e \"const fs=require('fs');fs.rmSync('dist',{recursive:true,force:true});fs.mkdirSync('dist');for(const f of ['index.html','styles.css','app.js','manifest.webmanifest','icon.svg','sw.js'])fs.copyFileSync(f,'dist/'+f)\"",
+    "prepare:web": "node -e \"const fs=require('fs');fs.rmSync('dist',{recursive:true,force:true});fs.mkdirSync('dist');for(const f of ['index.html','styles.css','app.js','quests.css','quests.js','manifest.webmanifest','icon.svg','sw.js'])fs.copyFileSync(f,'dist/'+f)\"",
     "android:sync": "npm run prepare:web && cap sync android",
     "android:build": "npm run android:sync && cd android && ./gradlew assembleDebug"
   },
