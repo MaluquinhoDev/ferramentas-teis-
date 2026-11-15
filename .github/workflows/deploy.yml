@@ -50,6 +50,7 @@ jobs:
           test -s styles.css
           test -s quests.css
           test -s quests.js
+          grep -Fq '.quest-backdrop[hidden]{display:none!important}' quests.css
           node --check app.js
           node --check quests.js
           node -e "const p=require('./package.json'); if(!p.dependencies['@capacitor/android']) process.exit(1)"
