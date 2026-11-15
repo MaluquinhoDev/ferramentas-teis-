@@ -65,3 +65,5 @@
 .quest-storage-status{display:block;margin-top:7px;color:#aab1c1;font-size:11px}
 .quest-storage-status[data-status="error"]{color:#ffb4ab}
 .quest-dialog :focus-visible{outline:2px solid #c4b5fd;outline-offset:3px}
+/* Keep the modal hidden even though the backdrop normally uses display:grid. */
+.quest-backdrop[hidden]{display:none!important}
