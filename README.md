@@ -10,7 +10,10 @@ Aplicativo de criação de histórias em quadrinhos, com interface mobile-first 
 - Página vertical, horizontal, tira e rolagem vertical.
 - Páginas múltiplas, desfazer, duplicar e excluir objetos.
 - Salvamento automático local após edições, além de salvamento manual.
-- Importação/exportação JSON e exportação PNG da página atual.
+- Exportação da página atual em PNG, JPEG ou WebP.
+- Exportação em lote de todas as páginas para ZIP, com pasta interna e nomes sequenciais (`pagina-001`, `pagina-002`...).
+- Pacote completo ZIP com imagens renderizadas e JSON editável do projeto.
+- Exportação CBZ para leitores de quadrinhos, com páginas JPEG numeradas e `ComicInfo.xml`.
 - Atalhos de teclado Ctrl/Cmd+Z para desfazer e Ctrl/Cmd+S para salvar (quando há teclado).
 
 ## Arquitetura Android
@@ -35,6 +38,18 @@ npm run android:build
 ```
 
 O projeto Android é gerado no processo de compilação e fica ignorado pelo Git; a fonte de configuração é `capacitor.config.json`.
+
+## Exportação — atualização 0.7
+
+A área de exportação foi redesenhada para projetos com várias páginas. O Quadra renderiza cada página separadamente, respeita a ordem do projeto e gera um único arquivo compactado, evitando depender de múltiplos downloads no Android.
+
+- **Todas as páginas · ZIP:** cria uma pasta com todas as imagens, numeradas com três dígitos e prontas para extrair ou enviar.
+- **Pacote completo · ZIP + JSON:** inclui as imagens achatadas e o JSON editável com objetos, camadas e estrutura do projeto. O arquivo JSON preserva a edição; as imagens são cópias finais.
+- **HQ para leitor · CBZ:** cria um arquivo CBZ (ZIP) com páginas JPEG em ordem alfabética e `ComicInfo.xml` básico.
+- **Página atual:** exporta a página selecionada individualmente.
+- Formatos selecionáveis para PNG em lote e página individual: PNG, JPEG e WebP.
+
+A exportação em lote é processada sequencialmente para limitar picos de memória em celulares modestos. O Quadra não cria diretamente uma pasta física escolhida pelo usuário dentro do Android: entrega um ZIP com a estrutura de pastas, que pode ser extraído no gerenciador de arquivos. PDF, impressão profissional, CMYK e sangria continuam fora desta versão.
 
 ## Editor avançado — atualização 0.6
 
