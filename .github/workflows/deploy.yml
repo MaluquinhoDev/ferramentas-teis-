@@ -17,6 +17,8 @@ jobs:
     name: Compile Android APK
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    env:
+      QUADRA_VERSION_CODE: ${{ github.run_number }}
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
@@ -35,8 +37,6 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v4
         with:
-          # Google removed the legacy "tools" SDK package.
-          # Command-line tools are installed by setup-android itself.
           packages: platform-tools
 
       - name: Install Capacitor dependencies
@@ -57,6 +57,68 @@ jobs:
       - name: Generate Android project
         run: npx cap add android
 
+      - name: Configure Android version and persistent signing
+        env:
+          QUADRA_KEYSTORE_BASE64: ${{ secrets.QUADRA_KEYSTORE_BASE64 }}
+          QUADRA_KEYSTORE_PASSWORD: ${{ secrets.QUADRA_KEYSTORE_PASSWORD }}
+          QUADRA_KEY_ALIAS: ${{ secrets.QUADRA_KEY_ALIAS }}
+          QUADRA_KEY_PASSWORD: ${{ secrets.QUADRA_KEY_PASSWORD }}
+        run: |
+          python - <<'PY'
+          import os
+          from pathlib import Path
+
+          gradle = Path("android/app/build.gradle")
+          code = int(os.environ["QUADRA_VERSION_CODE"])
+          text = gradle.read_text(encoding="utf-8")
+          text += f"""
+
+          // Quadra: monotonically increasing version for in-place Android updates.
+          android {{
+              defaultConfig {{
+                  versionCode {code}
+                  versionName "0.5.{code}"
+              }}
+          }}
+          """
+          secrets = [
+              os.environ.get("QUADRA_KEYSTORE_BASE64", ""),
+              os.environ.get("QUADRA_KEYSTORE_PASSWORD", ""),
+              os.environ.get("QUADRA_KEY_ALIAS", ""),
+              os.environ.get("QUADRA_KEY_PASSWORD", ""),
+          ]
+          if all(secrets):
+              import base64
+              Path("android/quadra-release.jks").write_bytes(
+                  base64.b64decode(secrets[0])
+              )
+              text += """
+
+          // The same private key signs every installable build, allowing updates
+          // over an already-installed Quadra with the same applicationId.
+          android {
+              signingConfigs {
+                  quadra {
+                      storeFile file("quadra-release.jks")
+                      storePassword System.getenv("QUADRA_KEYSTORE_PASSWORD")
+                      keyAlias System.getenv("QUADRA_KEY_ALIAS")
+                      keyPassword System.getenv("QUADRA_KEY_PASSWORD")
+                  }
+              }
+              buildTypes {
+                  debug { signingConfig signingConfigs.quadra }
+                  release {
+                      signingConfig signingConfigs.quadra
+                      minifyEnabled false
+                  }
+              }
+          }
+          """
+          else:
+              print("Persistent signing secrets absent: producing debug APK with temporary CI debug key.")
+          gradle.write_text(text, encoding="utf-8")
+          PY
+
       - name: Sync application into Android
         run: npx cap sync android
 
@@ -64,10 +126,24 @@ jobs:
         working-directory: android
         run: ./gradlew assembleDebug --no-daemon
 
-      - name: Upload installable APK
+      - name: Build signed release APK
+        if: ${{ secrets.QUADRA_KEYSTORE_BASE64 != '' && secrets.QUADRA_KEYSTORE_PASSWORD != '' && secrets.QUADRA_KEY_ALIAS != '' && secrets.QUADRA_KEY_PASSWORD != '' }}
+        working-directory: android
+        run: ./gradlew assembleRelease --no-daemon
+
+      - name: Upload debug APK
         uses: actions/upload-artifact@v4
         with:
           name: Quadra-Android-debug
           path: android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 30
+
+      - name: Upload update-ready release APK
+        if: ${{ secrets.QUADRA_KEYSTORE_BASE64 != '' && secrets.QUADRA_KEYSTORE_PASSWORD != '' && secrets.QUADRA_KEY_ALIAS != '' && secrets.QUADRA_KEY_PASSWORD != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: Quadra-Android-release-update
+          path: android/app/build/outputs/apk/release/app-release.apk
+          if-no-files-found: error
+          retention-days: 90
