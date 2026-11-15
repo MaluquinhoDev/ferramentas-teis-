@@ -46,6 +46,9 @@ jobs:
       - name: Install Capacitor dependencies
         run: npm install --no-audit --no-fund
 
+      - name: Install icon image processor
+        run: python -m pip install --disable-pip-version-check --no-cache-dir Pillow
+
       - name: Validate web application and icon assets
         run: |
           set -euo pipefail
@@ -61,6 +64,16 @@ jobs:
           test -s native/android/res/drawable/ic_launcher_monochrome.xml
           test -s native/android/res/drawable/quadra_icon_background.xml
           test -s native/android/res/mipmap-anydpi-v26/ic_launcher.xml
+          python - <<'PY'
+          from PIL import Image
+          from pathlib import Path
+          for path in ['quadra-icon.png', 'native/android/res/drawable-nodpi/quadra_icon.png']:
+              with Image.open(path) as image:
+                  assert image.format == 'PNG', path
+                  assert image.size == (192, 192), (path, image.size)
+                  image.verify()
+          print('Original 192x192 Quadra PNG verified.')
+          PY
           grep -Fq '.quest-backdrop[hidden]{display:none!important}' quests.css
           grep -Fq './quadra-icon.png' manifest.webmanifest
           node --check app.js
@@ -125,12 +138,11 @@ jobs:
 
       - name: Sync application into Android
         run: npx cap sync android
-      - name: Install adaptive and legacy launcher icons
+      - name: Install original Quadra artwork in every Android launcher variant
         run: |
           set -euo pipefail
           RES_DIR=android/app/src/main/res
           mkdir -p "$RES_DIR/drawable" "$RES_DIR/drawable-nodpi" "$RES_DIR/mipmap-anydpi" "$RES_DIR/mipmap-anydpi-v26" "$RES_DIR/values"
-          rm -f "$RES_DIR/mipmap-anydpi-v26/ic_launcher.xml" "$RES_DIR/mipmap-anydpi-v26/ic_launcher_round.xml"
           cp native/android/res/drawable/ic_launcher_foreground.xml "$RES_DIR/drawable/ic_launcher_foreground.xml"
           cp native/android/res/drawable-nodpi/quadra_icon.png "$RES_DIR/drawable-nodpi/quadra_icon.png"
           cp native/android/res/drawable/ic_launcher_monochrome.xml "$RES_DIR/drawable/ic_launcher_monochrome.xml"
@@ -139,6 +151,24 @@ jobs:
           cp native/android/res/mipmap-anydpi-v26/ic_launcher.xml "$RES_DIR/mipmap-anydpi-v26/ic_launcher.xml"
           cp native/android/res/mipmap-anydpi-v26/ic_launcher_round.xml "$RES_DIR/mipmap-anydpi-v26/ic_launcher_round.xml"
           cp native/android/res/values/quadra_icon_colors.xml "$RES_DIR/values/quadra_icon_colors.xml"
+
+          # Capacitor creates default Android robot/placeholder PNGs in density folders.
+          # Replace every legacy launcher variant with the actual Quadra artwork.
+          python - <<'PY'
+          from pathlib import Path
+          from PIL import Image
+          source = Image.open('quadra-icon.png').convert('RGBA')
+          densities = {'mdpi': 48, 'hdpi': 72, 'xhdpi': 96, 'xxhdpi': 144, 'xxxhdpi': 192}
+          res = Path('android/app/src/main/res')
+          for density, size in densities.items():
+              folder = res / f'mipmap-{density}'
+              folder.mkdir(parents=True, exist_ok=True)
+              icon = source.resize((size, size), Image.Resampling.LANCZOS)
+              for name in ('ic_launcher.png', 'ic_launcher_round.png'):
+                  icon.save(folder / name, format='PNG', optimize=True)
+              print(f'Installed original Quadra icon: {density} {size}x{size}')
+          PY
+
           python - <<'PY'
           import xml.etree.ElementTree as ET
           from pathlib import Path
@@ -155,36 +185,45 @@ jobs:
           tree.write(path,encoding='utf-8',xml_declaration=True)
           print('Launcher icon and roundIcon registered in AndroidManifest.xml')
           PY
+
           test -s "$RES_DIR/drawable/ic_launcher_foreground.xml"
           test -s "$RES_DIR/drawable-nodpi/quadra_icon.png"
-          grep -Fq "@drawable/quadra_icon" "$RES_DIR/drawable/ic_launcher_foreground.xml"
-          test -s "$RES_DIR/drawable/ic_launcher_monochrome.xml"
+          grep -Fq '@drawable/quadra_icon' "$RES_DIR/drawable/quadra_icon_background.xml"
+          grep -Fq 'android:color="#00000000"' "$RES_DIR/drawable/ic_launcher_foreground.xml"
           grep -Fq 'android:icon="@mipmap/ic_launcher"' android/app/src/main/AndroidManifest.xml
           grep -Fq 'android:roundIcon="@mipmap/ic_launcher_round"' android/app/src/main/AndroidManifest.xml
           grep -Fq '@drawable/quadra_icon_background' "$RES_DIR/mipmap-anydpi-v26/ic_launcher.xml"
           grep -Fq '@drawable/ic_launcher_foreground' "$RES_DIR/mipmap-anydpi-v26/ic_launcher.xml"
+
           python - <<'PY'
           import xml.etree.ElementTree as ET
           from pathlib import Path
+          from PIL import Image
+          res = Path('android/app/src/main/res')
           manifest = ET.parse('android/app/src/main/AndroidManifest.xml').getroot()
           app = manifest.find('application')
           ns = '{http://schemas.android.com/apk/res/android}'
           assert app is not None
           assert app.get(ns + 'icon') == '@mipmap/ic_launcher'
           assert app.get(ns + 'roundIcon') == '@mipmap/ic_launcher_round'
+          for density, size in {'mdpi':48,'hdpi':72,'xhdpi':96,'xxhdpi':144,'xxxhdpi':192}.items():
+              for name in ('ic_launcher.png','ic_launcher_round.png'):
+                  path = res / f'mipmap-{density}' / name
+                  assert path.is_file(), path
+                  with Image.open(path) as icon:
+                      assert icon.size == (size,size), (path, icon.size)
           for resource in [
               'drawable/ic_launcher_foreground.xml',
               'drawable-nodpi/quadra_icon.png',
-              'drawable/ic_launcher_monochrome.xml',
+              'drawable/quadra_icon_background.xml',
               'mipmap-anydpi/ic_launcher.xml',
               'mipmap-anydpi-v26/ic_launcher.xml',
               'mipmap-anydpi-v26/ic_launcher_round.xml',
               'values/quadra_icon_colors.xml',
           ]:
-              assert Path('android/app/src/main/res', resource).is_file(), resource
-          print('Adaptive, round, monochrome and legacy launcher icon resources installed.')
+              assert (res / resource).is_file(), resource
+          print('All five legacy densities and adaptive launcher resources validated.')
           PY
-
 
       - name: Build debug APK
         working-directory: android
@@ -202,6 +241,24 @@ jobs:
           "$AAPT" dump badging "$APK" | tee -a signing-debug.txt
           grep -Fq "application-icon" signing-debug.txt
           grep -Fq "application: label='Quadra'" signing-debug.txt
+          python - <<'PY'
+          from pathlib import Path
+          from zipfile import ZipFile
+          from PIL import Image
+          apk = Path('android/app/build/outputs/apk/debug/app-debug.apk')
+          expected = {'mdpi':48,'hdpi':72,'xhdpi':96,'xxhdpi':144,'xxxhdpi':192}
+          with ZipFile(apk) as archive:
+              names = set(archive.namelist())
+              for density, size in expected.items():
+                  for icon_name in ('ic_launcher.png', 'ic_launcher_round.png'):
+                      resource = f'res/mipmap-{density}-v4/{icon_name}'
+                      assert resource in names, f'Missing packaged icon: {resource}'
+                      with archive.open(resource) as stream, Image.open(stream) as icon:
+                          assert icon.size == (size, size), (resource, icon.size)
+              assert 'res/mipmap-anydpi-v26/ic_launcher.xml' in names
+              assert 'res/drawable-nodpi-v4/quadra_icon.png' in names
+          print('APK contains the Quadra artwork in all legacy densities and adaptive resources.')
+          PY
 
       - name: Upload debug APK and signature report
         uses: actions/upload-artifact@v4
