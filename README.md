@@ -9,7 +9,9 @@ Aplicativo de criação de histórias em quadrinhos, com interface mobile-first 
 - Direção de leitura configurável: esquerda-direita, direita-esquerda e vertical.
 - Página vertical, horizontal, tira e rolagem vertical.
 - Páginas múltiplas, desfazer, duplicar e excluir objetos.
-- Salvamento local, importação/exportação JSON e exportação PNG.
+- Salvamento automático local após edições, além de salvamento manual.
+- Importação/exportação JSON e exportação PNG da página atual.
+- Atalhos de teclado Ctrl/Cmd+Z para desfazer e Ctrl/Cmd+S para salvar (quando há teclado).
 
 ## Arquitetura Android
 O projeto mantém a interface em HTML, CSS e JavaScript Canvas. O Capacitor empacota essa interface em um aplicativo Android (WebView). O GitHub Actions prepara os recursos web, gera o projeto Android, compila um APK de depuração e publica o arquivo como artefato da execução.
@@ -34,6 +36,16 @@ npm run android:build
 
 O projeto Android é gerado no processo de compilação e fica ignorado pelo Git; a fonte de configuração é `capacitor.config.json`.
 
+## Interface mobile e experiência de edição — atualização 0.5
+
+- Barra de ferramentas horizontal e rolável em celulares, liberando espaço vertical para o desenho.
+- Área de desenho com prioridade de altura e painel de configurações reorganizado abaixo do editor em telas compactas.
+- Alvos de toque ampliados, estados de foco visíveis e melhor contenção da rolagem na área de trabalho.
+- Zoom calculado pela largura efetiva do editor, em vez da largura total da tela.
+- Salvamento automático local após concluir traços e operações de edição.
+- Histórico de desfazer isolado por página, evitando que uma ação em outra página contamine o histórico atual.
+- Atalhos Ctrl/Cmd+Z e Ctrl/Cmd+S em dispositivos com teclado.
+
 ## Narrativa visual — atualização 0.4
 
 A atualização amplia o vocabulário visual do editor com ferramentas diretas para composição e ritmo:
@@ -44,7 +56,7 @@ A atualização amplia o vocabulário visual do editor com ferramentas diretas p
 - Páginas múltiplas usadas como sequência de storyboard; os modelos existentes continuam disponíveis para estruturar a página.
 - Os novos objetos são armazenados junto com os demais elementos no JSON do projeto e exportados na imagem da página.
 
-As referências de narrativa visual que fundamentaram esta etapa incluem composição de planos, ritmo de quadros, sarjetas, transições entre painéis, lettering, efeitos sonoros e leitura vertical. Os guias de enquadramento são ferramentas de apoio: não substituem decisões narrativas nem impõem uma regra universal.
+As referências de narrativa visual que fundamentaram esta etapa incluem composição de planos, ritmo de quadros, sarjetas, transições entre painéis, lettering, efeitos sonoros e leitura vertical. 
 
 ### Referências de narrativa visual
 
