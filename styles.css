@@ -64,3 +64,13 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 /* Quadra 0.9 — destino de exportação SAF */
 #exportFolderStatus{display:block;margin:4px 0 8px;overflow-wrap:anywhere}
 #exportPagesFolder:disabled,#chooseExportFolder:disabled{opacity:.55;cursor:wait}
+
+
+/* Quadra 1.0 — feedback e precisão da área de desenho */
+.tool{user-select:none;-webkit-user-select:none;touch-action:manipulation;transition:background .12s,border-color .12s}
+.tool:hover{border-color:var(--accent)}
+.tool.active,.tool[aria-pressed="true"]{border-color:var(--accent);background:#302947}
+.tool:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+canvas{cursor:crosshair;touch-action:none;-webkit-user-select:none;user-select:none}
+.canvas-scroll{overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+@media(max-width:600px){.tool-rail{scroll-snap-type:x proximity}.tool{scroll-snap-align:start;flex-shrink:0}}
