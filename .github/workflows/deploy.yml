@@ -18,8 +18,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      QUADRA_VERSION_CODE: \${{ github.run_number }}
-      QUADRA_SIGNING_ENABLED: \${{ secrets.QUADRA_KEYSTORE_BASE64 != '' && secrets.QUADRA_KEYSTORE_PASSWORD != '' && secrets.QUADRA_KEY_ALIAS != '' && secrets.QUADRA_KEY_PASSWORD != '' }}
+      QUADRA_VERSION_CODE: ${{ github.run_number }}
+      QUADRA_SIGNING_ENABLED: ${{ secrets.QUADRA_KEYSTORE_BASE64 != '' && secrets.QUADRA_KEYSTORE_PASSWORD != '' && secrets.QUADRA_KEY_ALIAS != '' && secrets.QUADRA_KEY_PASSWORD != '' }}
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
@@ -67,10 +67,10 @@ jobs:
 
       - name: Configure Android version and persistent signing
         env:
-          QUADRA_KEYSTORE_BASE64: \${{ secrets.QUADRA_KEYSTORE_BASE64 }}
-          QUADRA_KEYSTORE_PASSWORD: \${{ secrets.QUADRA_KEYSTORE_PASSWORD }}
-          QUADRA_KEY_ALIAS: \${{ secrets.QUADRA_KEY_ALIAS }}
-          QUADRA_KEY_PASSWORD: \${{ secrets.QUADRA_KEY_PASSWORD }}
+          QUADRA_KEYSTORE_BASE64: ${{ secrets.QUADRA_KEYSTORE_BASE64 }}
+          QUADRA_KEYSTORE_PASSWORD: ${{ secrets.QUADRA_KEYSTORE_PASSWORD }}
+          QUADRA_KEY_ALIAS: ${{ secrets.QUADRA_KEY_ALIAS }}
+          QUADRA_KEY_PASSWORD: ${{ secrets.QUADRA_KEY_PASSWORD }}
         run: |
           python - <<'PY'
           import os, base64
@@ -133,7 +133,7 @@ jobs:
         run: ./gradlew assembleDebug --no-daemon
 
       - name: Build signed release APK
-        if: \${{ env.QUADRA_SIGNING_ENABLED == 'true' }}
+        if: ${{ env.QUADRA_SIGNING_ENABLED == 'true' }}
         working-directory: android
         run: ./gradlew assembleRelease --no-daemon
 
@@ -146,7 +146,7 @@ jobs:
           "$APKSIGNER" verify --verbose --print-certs "$APK" | tee signing-debug.txt
           AAPT="$(dirname "$APKSIGNER")/aapt"
           "$AAPT" dump badging "$APK" | grep -E "package:|sdkVersion:|targetSdkVersion:" | tee -a signing-debug.txt
-          if [ "\${{ env.QUADRA_SIGNING_ENABLED }}" = "true" ]; then
+          if [ "${{ env.QUADRA_SIGNING_ENABLED }}" = "true" ]; then
             RELEASE=android/app/build/outputs/apk/release/app-release.apk
             "$APKSIGNER" verify --verbose --print-certs "$RELEASE" | tee signing-release.txt
           else
@@ -165,7 +165,7 @@ jobs:
           retention-days: 30
 
       - name: Upload update-ready release APK
-        if: \${{ env.QUADRA_SIGNING_ENABLED == 'true' }}
+        if: ${{ env.QUADRA_SIGNING_ENABLED == 'true' }}
         uses: actions/upload-artifact@v4
         with:
           name: Quadra-Android-release-update
