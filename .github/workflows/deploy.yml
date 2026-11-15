@@ -91,7 +91,7 @@ jobs:
                   f"Esperava uma ocorrência de cada versão; encontrei code={code_count}, name={name_count}."
               )
 
-          gradle.write_text("\\n".join(lines) + "\\n", encoding="utf-8")
+          gradle.write_text("\n".join(lines) + "\n", encoding="utf-8")
           print(f"Versão Android configurada: 0.9.{code} (code {code}).")
           PY
 
