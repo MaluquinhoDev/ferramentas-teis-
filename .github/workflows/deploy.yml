@@ -19,7 +19,6 @@ jobs:
     timeout-minutes: 30
     env:
       QUADRA_VERSION_CODE: ${{ github.run_number }}
-      QUADRA_SIGNING_ENABLED: 'true'
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
@@ -65,58 +64,33 @@ jobs:
           cp native/android/QuadraStoragePlugin.java "$PACKAGE_DIR/QuadraStoragePlugin.java"
           cp native/android/MainActivity.java "$PACKAGE_DIR/MainActivity.java"
 
-      - name: Configure Android version and fixed repository signing
-        env:
-          QUADRA_KEYSTORE_PASSWORD: Quadra-2026-Pessoal-7f3c9a1d5e8b2c4f
-          QUADRA_KEY_ALIAS: quadra-release
+      - name: Configure Android version
         run: |
           python - <<'PY'
-          import os, base64
+          import os
+          import re
           from pathlib import Path
 
           gradle = Path("android/app/build.gradle")
           text = gradle.read_text(encoding="utf-8")
           code = int(os.environ["QUADRA_VERSION_CODE"])
-          key_path = Path("native/android/quadra-release.jks.b64")
-          if not key_path.is_file():
-              raise SystemExit("Keystore fixa não encontrada no repositório.")
-          key_bytes = base64.b64decode(key_path.read_text(encoding="ascii").strip(), validate=True)
-          if len(key_bytes) < 500:
-              raise SystemExit("Keystore fixa inválida ou incompleta.")
-          Path("android/quadra-release.jks").write_bytes(key_bytes)
-          text += f"""
-          
-          // Quadra 0.9: versionCode crescente em cada execução.
-          android {{
-              defaultConfig {{
-                  versionCode {code}
-                  versionName "0.9.{code}"
-              }}
-          }}
-          """
-          text += """
-          
-          android {
-              signingConfigs {
-                  quadraPersistent {
-                      storeFile file("quadra-release.jks")
-                      storeType "jks"
-                      storePassword System.getenv("QUADRA_KEYSTORE_PASSWORD")
-                      keyAlias System.getenv("QUADRA_KEY_ALIAS")
-                      keyPassword System.getenv("QUADRA_KEYSTORE_PASSWORD")
-                  }
-              }
-              buildTypes {
-                  debug { signingConfig signingConfigs.quadraPersistent }
-                  release {
-                      signingConfig signingConfigs.quadraPersistent
-                      minifyEnabled false
-                  }
-              }
-          }
-          """
-          print("Assinatura fixa do repositório ativada para debug e release.")
+
+          text, code_count = re.subn(
+              r"(?m)^([ \\t]*)versionCode\\s+\\d+\\s*$",
+              lambda match: f"{match.group(1)}versionCode {code}",
+              text,
+              count=1,
+          )
+          text, name_count = re.subn(
+              r'(?m)^([ \\t]*)versionName\\s+"[^"]*"\\s*$',
+              lambda match: f'{match.group(1)}versionName "0.9.{code}"',
+              text,
+              count=1,
+          )
+          if code_count != 1 or name_count != 1:
+              raise SystemExit("Não foi possível atualizar versionCode/versionName no build.gradle gerado.")
           gradle.write_text(text, encoding="utf-8")
+          print(f"Versão Android configurada: 0.9.{code} (code {code}).")
           PY
 
       - name: Sync application into Android
@@ -126,27 +100,16 @@ jobs:
         working-directory: android
         run: ./gradlew assembleDebug --no-daemon
 
-      - name: Build signed release APK
-        if: ${{ env.QUADRA_SIGNING_ENABLED == 'true' }}
-        working-directory: android
-        run: ./gradlew assembleRelease --no-daemon
-
-      - name: Verify APK signature and package
+      - name: Verify APK package and signature
         run: |
           set -euo pipefail
           APK=android/app/build/outputs/apk/debug/app-debug.apk
           test -s "$APK"
           APKSIGNER=$(find "$ANDROID_HOME/build-tools" -name apksigner -type f | sort -V | tail -n 1)
+          test -n "$APKSIGNER"
           "$APKSIGNER" verify --verbose --print-certs "$APK" | tee signing-debug.txt
           AAPT="$(dirname "$APKSIGNER")/aapt"
           "$AAPT" dump badging "$APK" | grep -E "package:|sdkVersion:|targetSdkVersion:" | tee -a signing-debug.txt
-          if [ "${{ env.QUADRA_SIGNING_ENABLED }}" = "true" ]; then
-            RELEASE=android/app/build/outputs/apk/release/app-release.apk
-            "$APKSIGNER" verify --verbose --print-certs "$RELEASE" | tee signing-release.txt
-          else
-            echo "TEMPORARY_DEBUG_KEY=true" >> signing-debug.txt
-            echo "Não é garantida a atualização de instalações assinadas com outro certificado." >> signing-debug.txt
-          fi
 
       - name: Upload debug APK and signature report
         uses: actions/upload-artifact@v4
@@ -157,14 +120,3 @@ jobs:
             signing-debug.txt
           if-no-files-found: error
           retention-days: 30
-
-      - name: Upload update-ready release APK
-        if: ${{ env.QUADRA_SIGNING_ENABLED == 'true' }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: Quadra-Android-release-update
-          path: |
-            android/app/build/outputs/apk/release/app-release.apk
-            signing-release.txt
-          if-no-files-found: error
-          retention-days: 90
