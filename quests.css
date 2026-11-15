@@ -61,3 +61,7 @@
 .quest-dialog :focus-visible{outline:2px solid #c4b5fd;outline-offset:3px}
 .quest-close{display:grid;place-items:center;min-height:42px;min-width:42px;border-radius:9px}
 .quest-close:hover{background:#303646}
+
+.quest-storage-status{display:block;margin-top:7px;color:#aab1c1;font-size:11px}
+.quest-storage-status[data-status="error"]{color:#ffb4ab}
+.quest-dialog :focus-visible{outline:2px solid #c4b5fd;outline-offset:3px}
