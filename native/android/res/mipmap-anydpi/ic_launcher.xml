@@ -1,13 +1,5 @@
-<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="108dp" android:height="108dp" android:viewportWidth="432" android:viewportHeight="432">
-    <path android:fillColor="#101321" android:pathData="M0,0h432v432h-432z"/>
-    <path android:fillColor="#FFF1D5" android:strokeColor="#101321" android:strokeWidth="12" android:strokeLineJoin="round" android:pathData="M100,92 L340,92 L365,340 L128,390 Z"/>
-    <path android:fillColor="#20B8F2" android:strokeColor="#101321" android:strokeWidth="8" android:pathData="M118,112 L228,100 L238,230 L132,246 Z"/>
-    <path android:fillColor="#FFB51F" android:strokeColor="#101321" android:strokeWidth="8" android:pathData="M244,100 L326,102 L348,224 L250,232 Z"/>
-    <path android:fillColor="#F45A26" android:strokeColor="#101321" android:strokeWidth="8" android:pathData="M142,258 L350,238 L360,330 L154,370 Z"/>
-    <path android:fillColor="#101321" android:pathData="M132,180 C135,139 160,116 190,120 C216,124 231,145 228,172 C225,196 207,215 186,218 L181,242 L145,234 L132,208 Z"/>
-    <path android:fillColor="#FFF8E9" android:strokeColor="#101321" android:strokeWidth="9" android:strokeLineJoin="round" android:pathData="M250,154 C250,129 270,110 298,110 L328,110 C356,110 375,128 375,152 C375,176 356,195 328,195 L307,195 L282,218 L286,192 C264,186 250,173 250,154 Z"/>
-    <path android:fillColor="#101321" android:pathData="M154,358 L154,327 L174,327 L174,352 L192,352 L192,302 L214,302 L214,348 L232,348 L232,282 L254,282 L254,344 L270,344 L270,310 L290,310 L290,340 Z"/>
-    <path android:fillColor="#FFB51F" android:strokeColor="#101321" android:strokeWidth="10" android:strokeLineJoin="round" android:pathData="M286,322 L375,238 L408,270 L319,354 L275,370 Z"/>
-    <path android:fillColor="#FFF1D5" android:strokeColor="#101321" android:strokeWidth="8" android:pathData="M275,370 L286,322 L319,354 Z"/>
-    <path android:fillColor="#101321" android:pathData="M275,370 L286,322 L296,333 Z"/>
-</vector>
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/quadra_icon_background"/>
+    <item android:drawable="@drawable/ic_launcher_foreground"/>
+</layer-list>

@@ -82,6 +82,7 @@ jobs:
           test -s icon.svg
           test -s native/android/res/drawable/ic_launcher_foreground.xml
           test -s native/android/res/drawable/ic_launcher_monochrome.xml
+          test -s native/android/res/drawable/quadra_icon_background.xml
           test -s native/android/res/mipmap-anydpi-v26/ic_launcher.xml
           grep -Fq '.quest-backdrop[hidden]{display:none!important}' quests.css
           grep -Fq './icon.svg' manifest.webmanifest
@@ -152,8 +153,10 @@ jobs:
           set -euo pipefail
           RES_DIR=android/app/src/main/res
           mkdir -p "$RES_DIR/drawable" "$RES_DIR/mipmap-anydpi" "$RES_DIR/mipmap-anydpi-v26" "$RES_DIR/values"
+          rm -f "$RES_DIR/mipmap-anydpi-v26/ic_launcher.xml" "$RES_DIR/mipmap-anydpi-v26/ic_launcher_round.xml"
           cp native/android/res/drawable/ic_launcher_foreground.xml "$RES_DIR/drawable/ic_launcher_foreground.xml"
           cp native/android/res/drawable/ic_launcher_monochrome.xml "$RES_DIR/drawable/ic_launcher_monochrome.xml"
+          cp native/android/res/drawable/quadra_icon_background.xml "$RES_DIR/drawable/quadra_icon_background.xml"
           cp native/android/res/mipmap-anydpi/ic_launcher.xml "$RES_DIR/mipmap-anydpi/ic_launcher.xml"
           cp native/android/res/mipmap-anydpi-v26/ic_launcher.xml "$RES_DIR/mipmap-anydpi-v26/ic_launcher.xml"
           cp native/android/res/mipmap-anydpi-v26/ic_launcher_round.xml "$RES_DIR/mipmap-anydpi-v26/ic_launcher_round.xml"
@@ -178,6 +181,8 @@ jobs:
           test -s "$RES_DIR/drawable/ic_launcher_monochrome.xml"
           grep -Fq 'android:icon="@mipmap/ic_launcher"' android/app/src/main/AndroidManifest.xml
           grep -Fq 'android:roundIcon="@mipmap/ic_launcher_round"' android/app/src/main/AndroidManifest.xml
+          grep -Fq '@drawable/quadra_icon_background' "$RES_DIR/mipmap-anydpi-v26/ic_launcher.xml"
+          grep -Fq '@drawable/ic_launcher_foreground' "$RES_DIR/mipmap-anydpi-v26/ic_launcher.xml"
           python - <<'PY'
           import xml.etree.ElementTree as ET
           from pathlib import Path
