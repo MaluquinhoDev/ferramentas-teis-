@@ -50,7 +50,9 @@ jobs:
           test -s styles.css
           test -s quests.css
           test -s quests.js
+          test -s icon.svg
           grep -Fq '.quest-backdrop[hidden]{display:none!important}' quests.css
+          grep -Fq './icon.svg' manifest.webmanifest
           node --check app.js
           node --check quests.js
           node -e "const p=require('./package.json'); if(!p.dependencies['@capacitor/android']) process.exit(1)"
@@ -69,6 +71,19 @@ jobs:
           mkdir -p "$PACKAGE_DIR"
           cp native/android/QuadraStoragePlugin.java "$PACKAGE_DIR/QuadraStoragePlugin.java"
           cp native/android/MainActivity.java "$PACKAGE_DIR/MainActivity.java"
+
+      - name: Install Quadra launcher icon resources
+        run: |
+          set -euo pipefail
+          RES_DIR=android/app/src/main/res
+          mkdir -p "$RES_DIR/drawable" "$RES_DIR/mipmap-anydpi" "$RES_DIR/mipmap-anydpi-v26" "$RES_DIR/values"
+          cp native/android/res/drawable/ic_launcher_foreground.xml "$RES_DIR/drawable/ic_launcher_foreground.xml"
+          cp native/android/res/mipmap-anydpi/ic_launcher.xml "$RES_DIR/mipmap-anydpi/ic_launcher.xml"
+          cp native/android/res/mipmap-anydpi-v26/ic_launcher.xml "$RES_DIR/mipmap-anydpi-v26/ic_launcher.xml"
+          cp native/android/res/mipmap-anydpi-v26/ic_launcher_round.xml "$RES_DIR/mipmap-anydpi-v26/ic_launcher_round.xml"
+          cp native/android/res/values/quadra_icon_colors.xml "$RES_DIR/values/quadra_icon_colors.xml"
+          test -s "$RES_DIR/drawable/ic_launcher_foreground.xml"
+          test -s "$RES_DIR/mipmap-anydpi-v26/ic_launcher.xml"
 
       - name: Configure Android version
         run: |
