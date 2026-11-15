@@ -4,7 +4,7 @@ function saveUndo(){const stack=undoStacks[pi]||(undoStacks[pi]=[]);stack.push(J
 function ensureLayers(i=pi){if(!Array.isArray(layersByPage[i])||!layersByPage[i].length)layersByPage[i]=[{id:"layer-"+(i+1),name:"Camada 1",visible:true,locked:false}];for(const o of pages[i]||[])if(!o.layerId)o.layerId=layersByPage[i][0].id;return layersByPage[i]}
 function activeLayer(){return ensureLayers().find(l=>l.id===currentLayerId)||ensureLayers()[0]}
 function objectBounds(o){if(o.type==="stroke"&&o.points&&o.points.length){const xs=o.points.map(p=>p.x),ys=o.points.map(p=>p.y);return{x:Math.min(...xs),y:Math.min(...ys),w:Math.max(1,Math.max(...xs)-Math.min(...xs)),h:Math.max(1,Math.max(...ys)-Math.min(...ys))}}if(o.type==="sound")return{x:o.x-75,y:o.y-45,w:150,h:90};const x=o.x||0,y=o.y||0,w=Math.abs(o.w??80),h=Math.abs(o.h??55);return{x:Math.min(x,x+w),y:Math.min(y,y+h),w:Math.max(24,w),h:Math.max(24,h)}}
-function hitTest(p){for(let i=items.length-1;i>=0;i--){const o=items[i],l=ensureLayers().find(x=>x.id===o.layerId);if(l&&(!l.visible||l.locked))continue;const b=objectBounds(o);if(p.x>=b.x-9&&p.x<=b.x+b.w+9&&p.y>=b.y-9&&p.y<=b.y+b.h+9)return i}return -1}
+function hitTest(p){for(let i=items.length-1;i>=0;i--){const o=items[i],l=ensureLayers().find(x=>x.id===o.layerId);if(l&&(!l.visible||l.locked))continue;const b=objectBounds(o);if(p.x<b.x-9||p.x>b.x+b.w+9||p.y<b.y-9||p.y>b.y+b.h+9)continue;if(o.type==="panel"){const edge=12,nearEdge=p.x<=b.x+edge||p.x>=b.x+b.w-edge||p.y<=b.y+edge||p.y>=b.y+b.h-edge;if(!nearEdge)continue}return i}return -1}
 function moveObject(o,dx,dy){if(o.type==="stroke"){o.points.forEach(p=>{p.x+=dx;p.y+=dy});return}o.x=(o.x||0)+dx;o.y=(o.y||0)+dy}
 function resizeObject(o,dx,dy){if(o.type==="stroke"){const b=objectBounds(o),sx=Math.max(.1,(b.w+dx)/Math.max(1,b.w)),sy=Math.max(.1,(b.h+dy)/Math.max(1,b.h));o.points.forEach(p=>{p.x=b.x+(p.x-b.x)*sx;p.y=b.y+(p.y-b.y)*sy});return}if(Number.isFinite(o.w))o.w=Math.max(20,o.w+dx);if(Number.isFinite(o.h))o.h=Math.max(20,o.h+dy)}
 function refreshLayers(){const box=$("layerList");if(!box)return;box.innerHTML="";ensureLayers().forEach(l=>{const row=document.createElement("div");row.className="layer-row"+(l.id===currentLayerId?" active":"");const pick=document.createElement("button");pick.className="layer-name";pick.textContent=l.name;pick.onclick=()=>{currentLayerId=l.id;refreshLayers()};const vis=document.createElement("button");vis.textContent=l.visible?"◉":"○";vis.title="Mostrar/ocultar camada";vis.onclick=()=>{l.visible=!l.visible;draw();refreshLayers();autosave()};const lock=document.createElement("button");lock.textContent=l.locked?"🔒":"🔓";lock.title="Bloquear/desbloquear camada";lock.onclick=()=>{l.locked=!l.locked;refreshLayers();autosave()};row.append(pick,vis,lock);box.append(row)})}
@@ -24,7 +24,39 @@ document.querySelectorAll("[data-tool]").forEach(b=>{b.title=b.textContent.trim(
 $("color").oninput=e=>color=e.target.value;$("size").oninput=e=>size=+e.target.value;$("stabilizer").oninput=e=>$("stabilizerValue").textContent=e.target.value;
 $("undo").onclick=()=>{const stack=undoStacks[pi]||(undoStacks[pi]=[]);if(stack.length){items=JSON.parse(stack.pop());pages[pi]=items;draw();autosave()}};$("clear").onclick=()=>{if(confirm("Limpar a página?")){saveUndo();items=[];pages[pi]=items;draw();autosave()}};
 $("deleteLast").onclick=()=>{const index=selectedIndex>=0?selectedIndex:items.length-1;if(index>=0&&items.length){saveUndo();items.splice(index,1);selectedIndex=-1;draw();autosave()}};$("duplicateLast").onclick=()=>{const index=selectedIndex>=0?selectedIndex:items.length-1;if(index>=0&&items.length){saveUndo();let o=JSON.parse(JSON.stringify(items[index]));o.x=(o.x||0)+25;o.y=(o.y||0)+25;if(o.points)o.points=o.points.map(p=>({x:p.x+25,y:p.y+25}));o.layerId=currentLayerId;items.push(o);selectedIndex=items.length-1;draw();autosave()}};
-function template(n){saveUndo();items=(layouts[n]||[]).map(a=>({type:"panel",x:a[0],y:a[1],w:a[2],h:a[3],color:"#171717",size:5}));pages[pi]=items;draw()}
+function template(n){
+ const frames=layouts[n]||[];
+ saveUndo();
+ const artwork=items.filter(o=>o.type!=="panel");
+ const panels=frames.map(a=>({type:"panel",x:a[0],y:a[1],w:a[2],h:a[3],color:"#171717",size:5,layerId:currentLayerId}));
+ items=[...artwork,...panels];pages[pi]=items;selectedIndex=-1;draw();autosave();
+}
+function createPanelGrid(){
+ const rows=Math.max(1,Math.min(8,Number($("panelRows").value)||2));
+ const cols=Math.max(1,Math.min(6,Number($("panelCols").value)||2));
+ const gutterValue=Number($("panelGutter").value),marginValue=Number($("panelMargin").value);
+ const gutter=Math.max(0,Math.min(48,Number.isFinite(gutterValue)?gutterValue:18));
+ const margin=Math.max(0,Math.min(100,Number.isFinite(marginValue)?marginValue:35));
+ const usableW=W-margin*2-gutter*(cols-1);
+ const usableH=canvas.height-margin*2-gutter*(rows-1);
+ if(usableW<=0||usableH<=0){$("status").textContent="Margens e sarjetas grandes demais para esta grade.";return}
+ saveUndo();
+ const artwork=items.filter(o=>o.type!=="panel");
+ const frameW=usableW/cols,frameH=usableH/rows,panels=[];
+ for(let row=0;row<rows;row++)for(let col=0;col<cols;col++){
+  panels.push({type:"panel",x:margin+col*(frameW+gutter),y:margin+row*(frameH+gutter),w:frameW,h:frameH,color:"#171717",size:5,layerId:currentLayerId});
+ }
+ items=[...artwork,...panels];pages[pi]=items;selectedIndex=-1;draw();autosave();
+ $("status").textContent=rows+" × "+cols+" quadros criados · "+gutter+" px de sarjeta";
+}
+function clearPanels(){
+ const count=items.filter(o=>o.type==="panel").length;
+ if(!count)return;
+ saveUndo();items=items.filter(o=>o.type!=="panel");pages[pi]=items;selectedIndex=-1;draw();autosave();
+ $("status").textContent=count+" quadros removidos; desenhos preservados.";
+}
+$("createPanelGrid").onclick=createPanelGrid;
+$("clearPanels").onclick=clearPanels;
 document.querySelectorAll("[data-template]").forEach(b=>b.onclick=()=>template(b.dataset.template==="clear"?"clear":b.dataset.template));
 $("style").onchange=e=>{let s=e.target.value;if(s==="manga"){$("reading").value="rtl";template("manga")}else if(s==="manhwa"){ $("reading").value="ttb";$("format").value="scroll";template("webtoon")}else if(s==="bd")template("bd");else if(s==="comics")template("hero");$("status").textContent="Estilo: "+e.target.selectedOptions[0].text};
 $("format").onchange=e=>{canvas.height=e.target.value==="scroll"?1800:1200;draw()};
