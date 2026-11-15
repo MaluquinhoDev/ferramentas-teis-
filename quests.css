@@ -1,0 +1,58 @@
+/* QUADRA — Creative Quests */
+.quest-trigger{display:inline-flex;align-items:center;gap:7px;border-color:#66548f;background:#302947;color:#e5dcff;font-weight:750}
+.quest-trigger:hover{background:#40345e}
+.quest-backdrop{position:fixed;inset:0;z-index:40;display:grid;place-items:center;padding:18px;background:#080910c9;backdrop-filter:blur(5px)}
+.quest-dialog{display:flex;width:min(980px,100%);max-height:min(88vh,900px);flex-direction:column;overflow:hidden;border:1px solid #45405c;border-radius:16px;background:#171923;color:#f1f2f6;box-shadow:0 24px 80px #0009}
+.quest-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:17px 20px;border-bottom:1px solid #303646}
+.quest-head h2{margin:0;color:#e3d9ff;font-size:17px;letter-spacing:.3px}
+.quest-head p{margin:4px 0 0;color:#aab1c1;font-size:12px}
+.quest-close{min-width:42px;font-size:20px}
+.quest-progress{padding:12px 20px;background:#1a1d27;border-bottom:1px solid #303646}
+.quest-progress-line{display:flex;justify-content:space-between;gap:12px;margin-bottom:8px;color:#c0c6d3;font-size:12px}
+.quest-progress-track{height:8px;overflow:hidden;border-radius:9px;background:#303646}
+.quest-progress-fill{height:100%;border-radius:9px;background:#a78bfa;transition:width .2s ease}
+.quest-body{display:grid;min-height:0;grid-template-columns: minmax(220px,.82fr) minmax(0,1.5fr);overflow:hidden}
+.quest-list{overflow:auto;padding:12px;border-right:1px solid #303646}
+.quest-phase{margin:10px 8px 6px;color:#aab1c1;font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase}
+.quest-item{display:flex;width:100%;align-items:flex-start;gap:10px;margin:5px 0;padding:10px;text-align:left;background:#1d202b;border-color:transparent}
+.quest-item[aria-current=true]{border-color:#a78bfa;background:#302947}
+.quest-item:disabled{opacity:.45}
+.quest-number{display:grid;width:27px;height:27px;flex:0 0 27px;place-items:center;border-radius:8px;background:#303646;color:#e3d9ff;font-size:12px;font-weight:800}
+.quest-item.done .quest-number{background:#244b3b;color:#a8edc5}
+.quest-item strong,.quest-item small{display:block}
+.quest-item strong{font-size:12px}
+.quest-item small{margin-top:3px;color:#aab1c1;font-size:10px}
+.quest-detail{overflow:auto;padding:22px}
+.quest-kicker{color:#b9a4ff;font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase}
+.quest-detail h3{margin:6px 0 8px;font-size:23px;line-height:1.2}
+.quest-meta{display:flex;flex-wrap:wrap;gap:7px;margin:12px 0 18px}
+.quest-meta span{padding:5px 8px;border:1px solid #383e50;border-radius:20px;color:#c0c6d3;font-size:11px}
+.quest-block{margin:16px 0;padding:14px;border:1px solid #303646;border-radius:10px;background:#1b1e29}
+.quest-block h4{margin:0 0 8px;color:#ded3ff;font-size:12px;letter-spacing:.4px}
+.quest-block p,.quest-block li{color:#d0d4de;font-size:13px;line-height:1.6}
+.quest-block p:last-child{margin-bottom:0}
+.quest-block ul,.quest-block ol{padding-left:20px;margin:7px 0}
+.quest-checks{display:grid;gap:9px}
+.quest-checks label{display:flex;align-items:flex-start;gap:9px;color:#d0d4de;font-size:12px;line-height:1.45}
+.quest-checks input{width:17px;height:17px;flex:0 0 17px;margin:0;accent-color:#a78bfa}
+.quest-actions{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:18px}
+.quest-complete{border:0;background:#a78bfa;color:#171323;font-weight:800}
+.quest-complete:disabled{opacity:.4}
+.quest-links{display:flex;flex-wrap:wrap;gap:8px}
+.quest-links a{color:#c8b8ff;font-size:12px;text-decoration:underline;text-underline-offset:3px}
+.quest-empty{padding:30px 15px;color:#aab1c1;text-align:center;font-size:13px}
+@media(max-width:680px){
+ .quest-backdrop{place-items:end center;padding:0}
+ .quest-dialog{width:100%;max-height:94dvh;border-radius:16px 16px 0 0}
+ .quest-head{padding:13px 15px}
+ .quest-progress{padding:10px 15px}
+ .quest-body{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr)}
+ .quest-list{display:flex;gap:7px;overflow-x:auto;overflow-y:hidden;padding:9px;border-right:0;border-bottom:1px solid #303646}
+ .quest-phase{display:none}
+ .quest-item{width:190px;min-width:190px;margin:0}
+ .quest-detail{padding:16px;overscroll-behavior:contain}
+ .quest-detail h3{font-size:20px}
+ .quest-actions{align-items:stretch;flex-direction:column}
+ .quest-complete{min-height:46px}
+}
+@media(prefers-reduced-motion:reduce){.quest-progress-fill{transition:none}}
