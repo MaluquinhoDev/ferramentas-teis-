@@ -82,7 +82,82 @@ jobs:
               count=1,
           )
           text, name_count = re.subn(
-              r'(?m)^([ ]*)versionName\s+"[^"]*"\s*,
+              r'(?m)^([ ]*)versionName\s+"[^"]*"\s*              lambda match: f'{match.group(1)}versionName "0.9.{code}"',
+              text,
+              count=1,
+          )
+          if code_count != 1 or name_count != 1:
+              raise SystemExit("Não foi possível atualizar versionCode/versionName no build.gradle gerado.")
+          gradle.write_text(text, encoding="utf-8")
+          print(f"Versão Android configurada: 0.9.{code} (code {code}).")
+          PY
+
+      - name: Sync application into Android
+        run: npx cap sync android
+
+      - name: Build debug APK
+        working-directory: android
+        run: ./gradlew assembleDebug --no-daemon
+
+      - name: Verify APK package and signature
+        run: |
+          set -euo pipefail
+          APK=android/app/build/outputs/apk/debug/app-debug.apk
+          test -s "$APK"
+          APKSIGNER=$(find "$ANDROID_HOME/build-tools" -name apksigner -type f | sort -V | tail -n 1)
+          test -n "$APKSIGNER"
+          "$APKSIGNER" verify --verbose --print-certs "$APK" | tee signing-debug.txt
+          AAPT="$(dirname "$APKSIGNER")/aapt"
+          "$AAPT" dump badging "$APK" | grep -E "package:|sdkVersion:|targetSdkVersion:" | tee -a signing-debug.txt
+
+      - name: Upload debug APK and signature report
+        uses: actions/upload-artifact@v4
+        with:
+          name: Quadra-Android-debug
+          path: |
+            android/app/build/outputs/apk/debug/app-debug.apk
+            signing-debug.txt
+          if-no-files-found: error
+          retention-days: 30
+,
+              lambda match: f'{match.group(1)}versionName "0.9.{code}"',
+              text,
+              count=1,
+          )
+          if code_count != 1 or name_count != 1:
+              raise SystemExit("Não foi possível atualizar versionCode/versionName no build.gradle gerado.")
+          gradle.write_text(text, encoding="utf-8")
+          print(f"Versão Android configurada: 0.9.{code} (code {code}).")
+          PY
+
+      - name: Sync application into Android
+        run: npx cap sync android
+
+      - name: Build debug APK
+        working-directory: android
+        run: ./gradlew assembleDebug --no-daemon
+
+      - name: Verify APK package and signature
+        run: |
+          set -euo pipefail
+          APK=android/app/build/outputs/apk/debug/app-debug.apk
+          test -s "$APK"
+          APKSIGNER=$(find "$ANDROID_HOME/build-tools" -name apksigner -type f | sort -V | tail -n 1)
+          test -n "$APKSIGNER"
+          "$APKSIGNER" verify --verbose --print-certs "$APK" | tee signing-debug.txt
+          AAPT="$(dirname "$APKSIGNER")/aapt"
+          "$AAPT" dump badging "$APK" | grep -E "package:|sdkVersion:|targetSdkVersion:" | tee -a signing-debug.txt
+
+      - name: Upload debug APK and signature report
+        uses: actions/upload-artifact@v4
+        with:
+          name: Quadra-Android-debug
+          path: |
+            android/app/build/outputs/apk/debug/app-debug.apk
+            signing-debug.txt
+          if-no-files-found: error
+          retention-days: 30
+,
               lambda match: f'{match.group(1)}versionName "0.9.{code}"',
               text,
               count=1,
