@@ -3,3 +3,5 @@ dist/
 android/
 *.log
 .DS_Store
+*.jks
+*.jks.b64
