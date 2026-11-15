@@ -59,7 +59,7 @@
 
 /* Modal focus visibility */
 .quest-dialog :focus-visible{outline:2px solid #c4b5fd;outline-offset:3px}
-.quest-close{display:grid;place-items:center;min-height:42px;min-width:42px;border-radius:9px}
+.quest-close{display:grid;place-items:center;min-height:44px;min-width:44px;border-radius:9px;touch-action:manipulation;pointer-events:auto;cursor:pointer}
 .quest-close:hover{background:#303646}
 
 .quest-storage-status{display:block;margin-top:7px;color:#aab1c1;font-size:11px}
