@@ -42,7 +42,7 @@ jobs:
       - name: Install Capacitor dependencies
         run: npm install --no-audit --no-fund
 
-      - name: Validate web application
+      - name: Validate web application and icon assets
         run: |
           set -euo pipefail
           test -s index.html
@@ -51,12 +51,31 @@ jobs:
           test -s quests.css
           test -s quests.js
           test -s icon.svg
+          test -s native/android/res/drawable/ic_launcher_foreground.xml
+          test -s native/android/res/drawable/ic_launcher_monochrome.xml
+          test -s native/android/res/mipmap-anydpi-v26/ic_launcher.xml
           grep -Fq '.quest-backdrop[hidden]{display:none!important}' quests.css
           grep -Fq './icon.svg' manifest.webmanifest
           node --check app.js
           node --check quests.js
           node -e "const p=require('./package.json'); if(!p.dependencies['@capacitor/android']) process.exit(1)"
-          python -c "import json; d=json.load(open('manifest.webmanifest')); assert d['short_name']=='Quadra'"
+          python - <<'PY'
+          import json
+          import xml.etree.ElementTree as ET
+          manifest=json.load(open('manifest.webmanifest', encoding='utf-8'))
+          assert manifest['short_name']=='Quadra'
+          assert any(i.get('src')=='./icon.svg' for i in manifest['icons'])
+          for path in [
+              'native/android/res/drawable/ic_launcher_foreground.xml',
+              'native/android/res/drawable/ic_launcher_monochrome.xml',
+              'native/android/res/mipmap-anydpi/ic_launcher.xml',
+              'native/android/res/mipmap-anydpi-v26/ic_launcher.xml',
+              'native/android/res/mipmap-anydpi-v26/ic_launcher_round.xml',
+              'native/android/res/values/quadra_icon_colors.xml'
+          ]:
+              ET.parse(path)
+          print('Web and Android icon resources validated.')
+          PY
 
       - name: Prepare web assets
         run: npm run prepare:web
@@ -72,31 +91,46 @@ jobs:
           cp native/android/QuadraStoragePlugin.java "$PACKAGE_DIR/QuadraStoragePlugin.java"
           cp native/android/MainActivity.java "$PACKAGE_DIR/MainActivity.java"
 
-      - name: Install Quadra launcher icon resources
+      - name: Install adaptive and legacy launcher icons
         run: |
           set -euo pipefail
           RES_DIR=android/app/src/main/res
           mkdir -p "$RES_DIR/drawable" "$RES_DIR/mipmap-anydpi" "$RES_DIR/mipmap-anydpi-v26" "$RES_DIR/values"
           cp native/android/res/drawable/ic_launcher_foreground.xml "$RES_DIR/drawable/ic_launcher_foreground.xml"
+          cp native/android/res/drawable/ic_launcher_monochrome.xml "$RES_DIR/drawable/ic_launcher_monochrome.xml"
           cp native/android/res/mipmap-anydpi/ic_launcher.xml "$RES_DIR/mipmap-anydpi/ic_launcher.xml"
           cp native/android/res/mipmap-anydpi-v26/ic_launcher.xml "$RES_DIR/mipmap-anydpi-v26/ic_launcher.xml"
           cp native/android/res/mipmap-anydpi-v26/ic_launcher_round.xml "$RES_DIR/mipmap-anydpi-v26/ic_launcher_round.xml"
           cp native/android/res/values/quadra_icon_colors.xml "$RES_DIR/values/quadra_icon_colors.xml"
+          python - <<'PY'
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+          path=Path('android/app/src/main/AndroidManifest.xml')
+          tree=ET.parse(path)
+          root=tree.getroot()
+          ns='{http://schemas.android.com/apk/res/android}'
+          app=root.find('application')
+          if app is None:
+              raise SystemExit('AndroidManifest.xml has no application element')
+          app.set(ns+'icon','@mipmap/ic_launcher')
+          app.set(ns+'roundIcon','@mipmap/ic_launcher_round')
+          tree.write(path,encoding='utf-8',xml_declaration=True)
+          print('Launcher icon and roundIcon registered in AndroidManifest.xml')
+          PY
           test -s "$RES_DIR/drawable/ic_launcher_foreground.xml"
-          test -s "$RES_DIR/mipmap-anydpi-v26/ic_launcher.xml"
+          test -s "$RES_DIR/drawable/ic_launcher_monochrome.xml"
+          grep -Fq 'android:icon="@mipmap/ic_launcher"' android/app/src/main/AndroidManifest.xml
 
       - name: Configure Android version
         run: |
           python - <<'PY'
           import os
           from pathlib import Path
-
           gradle = Path("android/app/build.gradle")
           lines = gradle.read_text(encoding="utf-8").splitlines()
           code = int(os.environ["QUADRA_VERSION_CODE"])
           code_count = 0
           name_count = 0
-
           for index, line in enumerate(lines):
               stripped = line.strip()
               indent = line[:len(line) - len(line.lstrip())]
@@ -106,12 +140,8 @@ jobs:
               elif stripped.startswith("versionName "):
                   lines[index] = f'{indent}versionName "0.9.{code}"'
                   name_count += 1
-
           if code_count != 1 or name_count != 1:
-              raise SystemExit(
-                  f"Expected one versionCode and one versionName; found {code_count} and {name_count}."
-              )
-
+              raise SystemExit(f"Expected one versionCode and one versionName; found {code_count} and {name_count}.")
           gradle.write_text("\n".join(lines) + "\n", encoding="utf-8")
           print(f"Android version configured: 0.9.{code} (code {code}).")
           PY
@@ -123,7 +153,7 @@ jobs:
         working-directory: android
         run: ./gradlew assembleDebug --no-daemon
 
-      - name: Verify APK package and signature
+      - name: Verify APK package, launcher icon and signature
         run: |
           set -euo pipefail
           APK=android/app/build/outputs/apk/debug/app-debug.apk
@@ -132,7 +162,9 @@ jobs:
           test -n "$APKSIGNER"
           "$APKSIGNER" verify --verbose --print-certs "$APK" | tee signing-debug.txt
           AAPT="$(dirname "$APKSIGNER")/aapt"
-          "$AAPT" dump badging "$APK" | grep -E 'package:|sdkVersion:|targetSdkVersion:' | tee -a signing-debug.txt
+          "$AAPT" dump badging "$APK" | tee -a signing-debug.txt
+          grep -Fq "application-icon" signing-debug.txt
+          grep -Fq "application: label='Quadra'" signing-debug.txt
 
       - name: Upload debug APK and signature report
         uses: actions/upload-artifact@v4
