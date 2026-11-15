@@ -3,6 +3,9 @@
 Aplicativo de criação de histórias em quadrinhos, com interface mobile-first e empacotamento Android.
 
 ## Ferramentas
+- Ferramentas geométricas: linha, retângulo e elipse, com contorno configurável.
+- Estabilizador de traço ajustável para reduzir tremores durante o desenho.
+- Conta-gotas para capturar cores já renderizadas na página.
 - Desenho por toque e mouse: pincel e borracha.
 - Quadros, balões, caixas de texto, retículas e linhas de ação.
 - Modelos iniciais: mangá, grade europeia, comics, webtoon e yonkoma.
@@ -122,3 +125,12 @@ O editor de balões foi ampliado com referências de fluxos de trabalho document
 ### Limites atuais
 
 A implementação continua sendo um editor Canvas 2D compacto. Ainda não oferece camadas vetoriais independentes, edição posterior de cada ponto da cauda, editor de roteiro em lote, fontes tipográficas próprias de lettering, gerenciamento profissional de páginas para impressão, CMYK ou exportação PDF de gráfica. Os recursos adicionados são uma evolução funcional do protótipo, não uma reprodução integral dos softwares profissionais.
+
+## Desenho e precisão — atualização 0.8
+
+- **Estabilizador de traço:** filtro incremental ajustável de 0 a 20. Valores maiores suavizam mais o movimento, com resposta progressivamente mais lenta; valor zero mantém o traçado sem filtragem.
+- **Formas geométricas:** linha, retângulo e elipse desenhados por arraste, usando a cor e a espessura atuais. Os objetos permanecem selecionáveis, movíveis, redimensionáveis e salvos no projeto.
+- **Conta-gotas:** captura a cor do pixel visível no quadro e atualiza a cor ativa do pincel.
+- Os recursos são implementados no Canvas 2D existente e não exigem bibliotecas ou serviços externos.
+
+**Limites desta etapa:** ainda não há balde de preenchimento com tolerância, seleção livre/laço, Bézier, simetria, réguas de perspectiva, pincéis texturizados ou pressão de caneta. O estabilizador é um filtro de posição simples, não um motor avançado de estabilização com previsão de trajetória.
