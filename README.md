@@ -44,3 +44,24 @@ Ainda não há pressão de caneta, camadas raster independentes, modelos 3D, vet
 - Cohn et al. (2017), variações culturais de layout: https://doi.org/10.1080/21504857.2017.1413667
 - Capacitor Android: https://capacitorjs.com/docs/android
 - GitHub Actions artifacts: https://docs.github.com/en/actions/using-workflows/storing-workflow-data-as-artifacts
+
+
+## Balões e diálogos — Quadra 0.3
+
+O editor de balões foi ampliado com referências de fluxos de trabalho documentados pelo Clip Studio Paint, Krita e MediBang Paint.
+
+- Balões de fala com cauda triangular e direção configurável (oito direções).
+- Balões de pensamento, grito, sussurro, voz trêmula/dor, voz eletrônica/rádio e narração.
+- Campo de diálogo integrado ao desenho do balão, identificação opcional do personagem e tamanho de letra configurável.
+- Quebra automática de linhas e centralização do texto dentro do balão.
+- Atributos de balão e diálogo preservados no JSON do projeto.
+
+### Referências consultadas
+
+- Clip Studio Paint — [ferramentas de balões](https://help.clip-studio.com/en-us/manual_en/540_comic/Balloons.htm), [lettering e balões](https://www.clipstudio.net/en/comics-manga/tool/text-balloons.html) e [organização da leitura](https://tips.clip-studio.com/en-us/articles/4811).
+- Krita — [recursos vetoriais e balões](https://krita.org/en/features/) e [texto em quadrinhos](https://docs.krita.org/en/user_manual/working_with_text.html).
+- MediBang Paint — [criação de quadrinhos e painéis](https://medibangpaint.com/en/tutorial/pc/create-comics/) e [convenções de balões](https://medibangpaint.com/en/use/2021/11/mangatutorialforbeginners08/).
+
+### Limites atuais
+
+A implementação continua sendo um editor Canvas 2D compacto. Ainda não oferece camadas vetoriais independentes, edição posterior de cada ponto da cauda, editor de roteiro em lote, fontes tipográficas próprias de lettering, gerenciamento profissional de páginas para impressão, CMYK ou exportação PDF de gráfica. Os recursos adicionados são uma evolução funcional do protótipo, não uma reprodução integral dos softwares profissionais.
