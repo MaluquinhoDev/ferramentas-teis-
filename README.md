@@ -42,6 +42,12 @@ npm run android:build
 
 O projeto Android é gerado no processo de compilação e fica ignorado pelo Git; a fonte de configuração é `capacitor.config.json`.
 
+## Exportação — atualização 0.9
+
+- **Escolha de diretório Android:** usa o seletor de pastas do sistema (Storage Access Framework / `ACTION_OPEN_DOCUMENT_TREE`). A permissão concedida é persistida entre sessões.
+- **Exportar páginas em pasta:** cria uma pasta com o nome do projeto dentro do diretório escolhido e grava cada página como arquivo PNG, JPEG ou WebP numerado. As páginas são renderizadas e gravadas sequencialmente.
+- ZIP, pacote JSON e CBZ continuam disponíveis. No navegador fora do APK, a exportação para pasta física não é oferecida.
+
 ## Exportação — atualização 0.7
 
 A área de exportação foi redesenhada para projetos com várias páginas. O Quadra renderiza cada página separadamente, respeita a ordem do projeto e gera um único arquivo compactado, evitando depender de múltiplos downloads no Android.
@@ -134,3 +140,8 @@ A implementação continua sendo um editor Canvas 2D compacto. Ainda não oferec
 - Os recursos são implementados no Canvas 2D existente e não exigem bibliotecas ou serviços externos.
 
 **Limites desta etapa:** ainda não há balde de preenchimento com tolerância, seleção livre/laço, Bézier, simetria, réguas de perspectiva, pincéis texturizados ou pressão de caneta. O estabilizador é um filtro de posição simples, não um motor avançado de estabilização com previsão de trajetória.
+
+
+## Assinatura Android — atualização 0.9
+
+O workflow aceita uma keystore persistente por meio dos secrets `QUADRA_KEYSTORE_BASE64`, `QUADRA_KEYSTORE_PASSWORD`, `QUADRA_KEY_ALIAS` e `QUADRA_KEY_PASSWORD`. Com os quatro secrets válidos, debug e release usam a mesma chave e a compilação verifica a assinatura. Sem esses secrets, o APK debug usa a chave temporária padrão do runner e não garante atualização sobre instalação assinada com outro certificado. A chave precisa ser criada uma única vez e armazenada nos secrets do repositório.
