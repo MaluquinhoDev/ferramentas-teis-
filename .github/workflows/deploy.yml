@@ -19,6 +19,7 @@ jobs:
     timeout-minutes: 30
     env:
       QUADRA_VERSION_CODE: ${{ github.run_number }}
+      QUADRA_SIGNING_ENABLED: ${{ secrets.QUADRA_KEYSTORE_BASE64 != '' && secrets.QUADRA_KEYSTORE_PASSWORD != '' && secrets.QUADRA_KEY_ALIAS != '' && secrets.QUADRA_KEY_PASSWORD != '' }}
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
@@ -127,7 +128,7 @@ jobs:
         run: ./gradlew assembleDebug --no-daemon
 
       - name: Build signed release APK
-        if: ${{ secrets.QUADRA_KEYSTORE_BASE64 != '' && secrets.QUADRA_KEYSTORE_PASSWORD != '' && secrets.QUADRA_KEY_ALIAS != '' && secrets.QUADRA_KEY_PASSWORD != '' }}
+        if: ${{ env.QUADRA_SIGNING_ENABLED == 'true' }}
         working-directory: android
         run: ./gradlew assembleRelease --no-daemon
 
@@ -140,7 +141,7 @@ jobs:
           retention-days: 30
 
       - name: Upload update-ready release APK
-        if: ${{ secrets.QUADRA_KEYSTORE_BASE64 != '' && secrets.QUADRA_KEYSTORE_PASSWORD != '' && secrets.QUADRA_KEY_ALIAS != '' && secrets.QUADRA_KEY_PASSWORD != '' }}
+        if: ${{ env.QUADRA_SIGNING_ENABLED == 'true' }}
         uses: actions/upload-artifact@v4
         with:
           name: Quadra-Android-release-update
