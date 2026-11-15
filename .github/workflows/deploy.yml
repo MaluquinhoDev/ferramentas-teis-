@@ -39,8 +39,7 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v4
         with:
-          # Avoid the action's interactive sdkmanager --licenses prompt.
-          # Licenses are accepted explicitly in the next step.
+          # Let setup-android accept the SDK package licenses non-interactively.
           accept-android-sdk-licenses: true
 
       - name: Install Capacitor dependencies
@@ -244,8 +243,9 @@ jobs:
           python - <<'PY'
           from pathlib import Path
           from zipfile import ZipFile
-          from PIL import Image
+          from PIL import Image, ImageChops
           apk = Path('android/app/build/outputs/apk/debug/app-debug.apk')
+          source = Image.open('quadra-icon.png').convert('RGBA')
           expected = {'mdpi':48,'hdpi':72,'xhdpi':96,'xxhdpi':144,'xxxhdpi':192}
           with ZipFile(apk) as archive:
               names = set(archive.namelist())
@@ -253,11 +253,17 @@ jobs:
                   for icon_name in ('ic_launcher.png', 'ic_launcher_round.png'):
                       resource = f'res/mipmap-{density}-v4/{icon_name}'
                       assert resource in names, f'Missing packaged icon: {resource}'
-                      with archive.open(resource) as stream, Image.open(stream) as icon:
-                          assert icon.size == (size, size), (resource, icon.size)
+                      with archive.open(resource) as stream, Image.open(stream) as packaged:
+                          actual = packaged.convert('RGBA')
+                          expected_image = source.resize((size, size), Image.Resampling.LANCZOS)
+                          assert actual.size == (size, size), (resource, actual.size)
+                          assert ImageChops.difference(actual, expected_image).getbbox() is None, f'Wrong image packaged in {resource}'
               assert 'res/mipmap-anydpi-v26/ic_launcher.xml' in names
+              assert 'res/mipmap-anydpi-v26/ic_launcher_round.xml' in names
               assert 'res/drawable-nodpi-v4/quadra_icon.png' in names
-          print('APK contains the Quadra artwork in all legacy densities and adaptive resources.')
+              with archive.open('res/drawable-nodpi-v4/quadra_icon.png') as stream, Image.open(stream) as packaged:
+                  assert ImageChops.difference(packaged.convert('RGBA'), source).getbbox() is None
+          print('APK image bytes verified against the original Quadra artwork in every density.')
           PY
 
       - name: Upload debug APK and signature report
