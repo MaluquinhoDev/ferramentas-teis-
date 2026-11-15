@@ -47,11 +47,27 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          yes | sdkmanager --sdk_root="$ANDROID_HOME" --licenses || status=$?
-          if [ "${status:-0}" -ne 0 ] && [ "${status:-0}" -ne 141 ]; then
-            exit "$status"
-          fi
+          LICENSE_LOG="$RUNNER_TEMP/android-sdk-license-verification.log"
 
+          # sdkmanager may close stdin after consuming its prompts. That makes
+          # yes receive SIGPIPE; do not let yes' status mask sdkmanager's status.
+          set +o pipefail
+          yes 2>/dev/null | sdkmanager --sdk_root="$ANDROID_HOME" --licenses
+          set -o pipefail
+
+          # Verify independently with stdin closed: any remaining license prompt
+          # defaults to "no" and is detected in the captured output.
+          if ! sdkmanager --sdk_root="$ANDROID_HOME" --licenses </dev/null >"$LICENSE_LOG" 2>&1; then
+            cat "$LICENSE_LOG"
+            echo "Android SDK license verification command failed."
+            exit 1
+          fi
+          cat "$LICENSE_LOG"
+          if grep -Eqi '[0-9]+ of [0-9]+ SDK package licenses not accepted|Accept\\? \\(y/N\\)' "$LICENSE_LOG"; then
+            echo "Android SDK licenses remain unaccepted."
+            exit 1
+          fi
+          echo "All Android SDK package licenses are accepted."
       - name: Install Capacitor dependencies
         run: npm install --no-audit --no-fund
 
