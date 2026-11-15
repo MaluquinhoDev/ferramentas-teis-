@@ -78,7 +78,7 @@ jobs:
           android {{
               defaultConfig {{
                   versionCode {code}
-                  versionName "0.5.{code}"
+                  versionName "0.6.{code}"
               }}
           }}
           """
