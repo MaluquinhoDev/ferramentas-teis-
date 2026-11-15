@@ -25,17 +25,23 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
 
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '21'
+          cache: gradle
 
       - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
+        with:
+          # Google removed the legacy "tools" SDK package.
+          # Command-line tools are installed by setup-android itself.
+          packages: platform-tools
 
-      - name: Install Capacitor
+      - name: Install Capacitor dependencies
         run: npm install --no-audit --no-fund
 
       - name: Validate web application
