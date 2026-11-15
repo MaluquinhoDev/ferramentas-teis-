@@ -1,1 +1,19 @@
-{"name":"Quadra — Estúdio de HQ","short_name":"Quadra","description":"Estúdio móvel para criar quadrinhos, mangás e webtoons.","start_url":"./","scope":"./","display":"standalone","orientation":"portrait","background_color":"#11131a","theme_color":"#171923","icons":[{"src":"./icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]}
+{
+  "name": "Quadra — Estúdio de HQ",
+  "short_name": "Quadra",
+  "description": "Estúdio móvel para criar quadrinhos, mangás e webtoons.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#101321",
+  "theme_color": "#101321",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
