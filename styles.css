@@ -51,3 +51,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 
 /* Selection tool feedback */
 .tool[data-tool="select"]{font-size:20px}
+
+
+/* Quadra 0.7 — painel de exportação */
+.export-panel{border:1px solid var(--line);border-radius:10px;padding:10px;background:#171923}.export-panel .primary{background:var(--accent);color:#171923;font-weight:700}.export-panel button:disabled{opacity:.55;cursor:wait}#exportStatus{overflow-wrap:anywhere;min-height:2em}
