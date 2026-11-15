@@ -1,31 +1,16 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-<defs>
- <linearGradient id="q" x1="76" y1="64" x2="438" y2="452" gradientUnits="userSpaceOnUse"><stop stop-color="#ffb52e"/><stop offset=".52" stop-color="#ff6b19"/><stop offset="1" stop-color="#f02e45"/></linearGradient>
- <linearGradient id="blue" x1="132" y1="112" x2="260" y2="300" gradientUnits="userSpaceOnUse"><stop stop-color="#35c9ff"/><stop offset="1" stop-color="#1764bc"/></linearGradient>
- <linearGradient id="sun" x1="280" y1="128" x2="392" y2="300" gradientUnits="userSpaceOnUse"><stop stop-color="#ffd45b"/><stop offset="1" stop-color="#ff7426"/></linearGradient>
- <pattern id="dots" width="12" height="12" patternUnits="userSpaceOnUse"><circle cx="3" cy="3" r="2" fill="#101321" opacity=".24"/></pattern>
- <clipPath id="panel"><circle cx="256" cy="238" r="163"/></clipPath>
-</defs>
+<title>Quadra — ícone do aplicativo</title>
 <rect width="512" height="512" rx="112" fill="#101321"/>
-<circle cx="256" cy="238" r="191" fill="none" stroke="#050812" stroke-width="48"/>
-<circle cx="256" cy="238" r="191" fill="none" stroke="url(#q)" stroke-width="43"/>
-<g clip-path="url(#panel)">
- <path d="M72 62h190v278H72z" fill="url(#blue)"/>
- <path d="M262 62h190v278H262z" fill="url(#sun)"/>
- <path d="M72 340h380v160H72z" fill="#f0444d"/>
- <path d="M72 62h380v438H72z" fill="url(#dots)"/>
- <path d="M252 55v291M60 337h400" stroke="#101321" stroke-width="17"/>
- <path d="M113 185c4-65 53-106 112-91 28 7 47 28 54 54-19-13-32-17-48-15 13 13 17 28 17 44-14-14-26-20-42-20 10 14 13 30 8 46-14-11-27-15-41-13 5 10 8 21 7 34l-21 42-58-5z" fill="#101321"/>
- <path d="M128 195c8-43 35-68 67-66 34 2 54 28 53 61-1 31-18 55-43 62l-7 32-53-8-18-36z" fill="#f6e9d3" stroke="#101321" stroke-width="12" stroke-linejoin="round"/>
- <path d="M160 190l20-5m26 5 17 7m-40 26 20 4" fill="none" stroke="#101321" stroke-width="9" stroke-linecap="round"/>
- <path d="M112 286l43-32 55 24 44 72H85z" fill="#101321"/>
- <path d="M288 150c0-35 29-62 69-62h48c39 0 67 25 67 59s-28 60-67 60h-38l-35 38 7-39c-31-8-51-29-51-56z" fill="#fff4df" stroke="#101321" stroke-width="13" stroke-linejoin="round"/>
- <path d="M308 142h132" stroke="#ffb52e" stroke-width="7" stroke-linecap="round" opacity=".0"/>
- <path d="M93 465h34v-49h21v49h18v-72h25v72h22v-95h27v95h18v-62h22v62h22v-110h29v110h17v-77h25v77h28v-49h26v49h22v35H93z" fill="#101321"/>
- <g fill="#ffd36b"><path d="M170 414h7v9h-7zM170 437h7v9h-7zM232 394h7v10h-7zM232 419h7v10h-7zM319 383h7v10h-7zM319 407h7v10h-7zM389 421h7v9h-7z"/></g>
+<g stroke="#101321" stroke-linejoin="round" stroke-linecap="round">
+ <path d="M112 83 385 83 413 365 144 422Z" fill="#fff1d5" stroke-width="15"/>
+ <path d="M132 105 256 91 268 236 150 253Z" fill="#20b8f2" stroke-width="10"/>
+ <path d="M274 91 367 93 392 230 280 238Z" fill="#ffb51f" stroke-width="10"/>
+ <path d="M160 267 396 245 408 351 174 395Z" fill="#f45a26" stroke-width="10"/>
+ <path d="M151 178c3-46 31-73 65-68 27 4 43 28 40 58-3 27-20 47-44 51l-5 26-40-9-17-30Z" fill="#101321" stroke="none"/>
+ <path d="M284 151c0-28 22-49 53-49h33c31 0 52 20 52 47s-21 48-52 48h-23l-28 26 5-29c-24-7-40-22-40-43Z" fill="#fff8e9" stroke-width="10"/>
+ <path d="M174 382v-35h22v29h19v-57h25v52h19v-79h25v75h18v-42h22v39" fill="#101321" stroke="none"/>
+ <path d="m294 338 99-94 35 37-99 94-49 15Z" fill="#ffb51f" stroke-width="12"/>
+ <path d="m280 390 15-52 34 37Z" fill="#fff1d5" stroke-width="9"/>
+ <path d="m280 390 15-52 11 11Z" fill="#101321" stroke="none"/>
 </g>
-<path d="M345 364l83 83-24 24-83-83z" fill="#101321" stroke="#050812" stroke-width="12" stroke-linejoin="round"/>
-<path d="M348 365l81 81-33-2-45-45z" fill="#ffd36b"/>
-<circle cx="383" cy="401" r="7" fill="#101321"/>
-<path d="M116 437c52 40 112 54 178 40" fill="none" stroke="#ff8b24" stroke-width="9" stroke-linecap="round"/>
 </svg>
