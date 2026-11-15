@@ -60,3 +60,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 #stabilizer{width:100%;accent-color:var(--accent)}
 #stabilizerValue{display:inline-block;min-width:1.5em;color:var(--muted);font-variant-numeric:tabular-nums}
 .tool[data-tool="line"],.tool[data-tool="rectangle"],.tool[data-tool="ellipse"],.tool[data-tool="eyedropper"]{font-size:19px}
+
+/* Quadra 0.9 — destino de exportação SAF */
+#exportFolderStatus{display:block;margin:4px 0 8px;overflow-wrap:anywhere}
+#exportPagesFolder:disabled,#chooseExportFolder:disabled{opacity:.55;cursor:wait}
