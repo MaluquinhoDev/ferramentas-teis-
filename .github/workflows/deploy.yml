@@ -48,7 +48,10 @@ jobs:
           test -s index.html
           test -s app.js
           test -s styles.css
+          test -s quests.css
+          test -s quests.js
           node --check app.js
+          node --check quests.js
           node -e "const p=require('./package.json'); if(!p.dependencies['@capacitor/android']) process.exit(1)"
           python -c "import json; d=json.load(open('manifest.webmanifest')); assert d['short_name']=='Quadra'"
 
