@@ -56,3 +56,8 @@
  .quest-complete{min-height:46px}
 }
 @media(prefers-reduced-motion:reduce){.quest-progress-fill{transition:none}}
+
+/* Modal focus visibility */
+.quest-dialog :focus-visible{outline:2px solid #c4b5fd;outline-offset:3px}
+.quest-close{display:grid;place-items:center;min-height:42px;min-width:42px;border-radius:9px}
+.quest-close:hover{background:#303646}
