@@ -36,6 +36,17 @@ npm run android:build
 
 O projeto Android é gerado no processo de compilação e fica ignorado pelo Git; a fonte de configuração é `capacitor.config.json`.
 
+## Editor avançado — atualização 0.6
+
+- Ferramenta Selecionar: clique em um objeto para selecioná-lo; arraste para mover e use a alça inferior direita para redimensionar.
+- A seleção permite excluir ou duplicar o objeto selecionado, em vez de operar somente sobre o último objeto.
+- Camadas por página: criar, selecionar, ocultar/mostrar e bloquear/desbloquear. Objetos criados passam a pertencer à camada ativa.
+- Projetos JSON versão 3 salvam as camadas; projetos anteriores continuam sendo importados e recebem uma camada inicial automaticamente.
+- Gerenciamento de páginas: duplicar, excluir e reordenar páginas, preservando o conteúdo e as camadas.
+- Atalho Escape limpa a seleção.
+
+**Limites desta etapa:** o redimensionamento usa uma alça única; ainda não há rotação, seleção múltipla, agrupamento, reordenação visual de camadas, renomeação de camadas ou camadas raster independentes. A renderização continua em um único Canvas 2D.
+
 ## Interface mobile e experiência de edição — atualização 0.5
 
 - Barra de ferramentas horizontal e rolável em celulares, liberando espaço vertical para o desenho.
