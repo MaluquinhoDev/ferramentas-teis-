@@ -19,7 +19,7 @@ jobs:
     timeout-minutes: 30
     env:
       QUADRA_VERSION_CODE: ${{ github.run_number }}
-      QUADRA_SIGNING_ENABLED: ${{ secrets.QUADRA_KEYSTORE_BASE64 != '' && secrets.QUADRA_KEYSTORE_PASSWORD != '' && secrets.QUADRA_KEY_ALIAS != '' && secrets.QUADRA_KEY_PASSWORD != '' }}
+      QUADRA_SIGNING_ENABLED: 'true'
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
@@ -65,12 +65,10 @@ jobs:
           cp native/android/QuadraStoragePlugin.java "$PACKAGE_DIR/QuadraStoragePlugin.java"
           cp native/android/MainActivity.java "$PACKAGE_DIR/MainActivity.java"
 
-      - name: Configure Android version and persistent signing
+      - name: Configure Android version and fixed repository signing
         env:
-          QUADRA_KEYSTORE_BASE64: ${{ secrets.QUADRA_KEYSTORE_BASE64 }}
-          QUADRA_KEYSTORE_PASSWORD: ${{ secrets.QUADRA_KEYSTORE_PASSWORD }}
-          QUADRA_KEY_ALIAS: ${{ secrets.QUADRA_KEY_ALIAS }}
-          QUADRA_KEY_PASSWORD: ${{ secrets.QUADRA_KEY_PASSWORD }}
+          QUADRA_KEYSTORE_PASSWORD: Quadra-2026-Pessoal-7f3c9a1d5e8b2c4f
+          QUADRA_KEY_ALIAS: quadra-release
         run: |
           python - <<'PY'
           import os, base64
@@ -79,11 +77,13 @@ jobs:
           gradle = Path("android/app/build.gradle")
           text = gradle.read_text(encoding="utf-8")
           code = int(os.environ["QUADRA_VERSION_CODE"])
-          secrets = [os.environ.get(k, "") for k in (
-              "QUADRA_KEYSTORE_BASE64", "QUADRA_KEYSTORE_PASSWORD",
-              "QUADRA_KEY_ALIAS", "QUADRA_KEY_PASSWORD")]
-          if any(secrets) and not all(secrets):
-              raise SystemExit("Assinatura incompleta: configure os quatro secrets QUADRA_KEYSTORE_*.")
+          key_path = Path("native/android/quadra-release.jks.b64")
+          if not key_path.is_file():
+              raise SystemExit("Keystore fixa não encontrada no repositório.")
+          key_bytes = base64.b64decode(key_path.read_text(encoding="ascii").strip(), validate=True)
+          if len(key_bytes) < 500:
+              raise SystemExit("Keystore fixa inválida ou incompleta.")
+          Path("android/quadra-release.jks").write_bytes(key_bytes)
           text += f"""
           
           // Quadra 0.9: versionCode crescente em cada execução.
@@ -94,20 +94,16 @@ jobs:
               }}
           }}
           """
-          if all(secrets):
-              key_bytes = base64.b64decode(secrets[0], validate=True)
-              if len(key_bytes) < 1024:
-                  raise SystemExit("Keystore inválida ou Base64 incompleto.")
-              Path("android/quadra-release.jks").write_bytes(key_bytes)
-              text += """
+          text += """
           
           android {
               signingConfigs {
                   quadraPersistent {
                       storeFile file("quadra-release.jks")
+                      storeType "jks"
                       storePassword System.getenv("QUADRA_KEYSTORE_PASSWORD")
                       keyAlias System.getenv("QUADRA_KEY_ALIAS")
-                      keyPassword System.getenv("QUADRA_KEY_PASSWORD")
+                      keyPassword System.getenv("QUADRA_KEYSTORE_PASSWORD")
                   }
               }
               buildTypes {
@@ -119,9 +115,7 @@ jobs:
               }
           }
           """
-              print("Keystore persistente ativada para debug e release.")
-          else:
-              print("AVISO: sem keystore persistente; debug usará a chave temporária do runner.")
+          print("Assinatura fixa do repositório ativada para debug e release.")
           gradle.write_text(text, encoding="utf-8")
           PY
 
