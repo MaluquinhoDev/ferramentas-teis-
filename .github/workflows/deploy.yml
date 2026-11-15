@@ -120,6 +120,33 @@ jobs:
           cp native/android/QuadraStoragePlugin.java "$PACKAGE_DIR/QuadraStoragePlugin.java"
           cp native/android/MainActivity.java "$PACKAGE_DIR/MainActivity.java"
 
+      - name: Configure Android version
+        run: |
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          gradle = Path("android/app/build.gradle")
+          lines = gradle.read_text(encoding="utf-8").splitlines()
+          code = int(os.environ["QUADRA_VERSION_CODE"])
+          code_count = 0
+          name_count = 0
+          for index, line in enumerate(lines):
+              stripped = line.strip()
+              indent = line[:len(line) - len(line.lstrip())]
+              if stripped.startswith("versionCode "):
+                  lines[index] = f"{indent}versionCode {code}"
+                  code_count += 1
+              elif stripped.startswith("versionName "):
+                  lines[index] = f'{indent}versionName "0.9.{code}"'
+                  name_count += 1
+          if code_count != 1 or name_count != 1:
+              raise SystemExit(f"Expected one versionCode and one versionName; found {code_count} and {name_count}.")
+          gradle.write_text("\n".join(lines) + "\n", encoding="utf-8")
+          print(f"Android version configured: 0.9.{code} (code {code}).")
+          PY
+
+      - name: Sync application into Android
+        run: npx cap sync android
       - name: Install adaptive and legacy launcher icons
         run: |
           set -euo pipefail
@@ -150,34 +177,28 @@ jobs:
           test -s "$RES_DIR/drawable/ic_launcher_foreground.xml"
           test -s "$RES_DIR/drawable/ic_launcher_monochrome.xml"
           grep -Fq 'android:icon="@mipmap/ic_launcher"' android/app/src/main/AndroidManifest.xml
-
-      - name: Configure Android version
-        run: |
+          grep -Fq 'android:roundIcon="@mipmap/ic_launcher_round"' android/app/src/main/AndroidManifest.xml
           python - <<'PY'
-          import os
+          import xml.etree.ElementTree as ET
           from pathlib import Path
-          gradle = Path("android/app/build.gradle")
-          lines = gradle.read_text(encoding="utf-8").splitlines()
-          code = int(os.environ["QUADRA_VERSION_CODE"])
-          code_count = 0
-          name_count = 0
-          for index, line in enumerate(lines):
-              stripped = line.strip()
-              indent = line[:len(line) - len(line.lstrip())]
-              if stripped.startswith("versionCode "):
-                  lines[index] = f"{indent}versionCode {code}"
-                  code_count += 1
-              elif stripped.startswith("versionName "):
-                  lines[index] = f'{indent}versionName "0.9.{code}"'
-                  name_count += 1
-          if code_count != 1 or name_count != 1:
-              raise SystemExit(f"Expected one versionCode and one versionName; found {code_count} and {name_count}.")
-          gradle.write_text("\n".join(lines) + "\n", encoding="utf-8")
-          print(f"Android version configured: 0.9.{code} (code {code}).")
+          manifest = ET.parse('android/app/src/main/AndroidManifest.xml').getroot()
+          app = manifest.find('application')
+          ns = '{http://schemas.android.com/apk/res/android}'
+          assert app is not None
+          assert app.get(ns + 'icon') == '@mipmap/ic_launcher'
+          assert app.get(ns + 'roundIcon') == '@mipmap/ic_launcher_round'
+          for resource in [
+              'drawable/ic_launcher_foreground.xml',
+              'drawable/ic_launcher_monochrome.xml',
+              'mipmap-anydpi/ic_launcher.xml',
+              'mipmap-anydpi-v26/ic_launcher.xml',
+              'mipmap-anydpi-v26/ic_launcher_round.xml',
+              'values/quadra_icon_colors.xml',
+          ]:
+              assert Path('android/app/src/main/res', resource).is_file(), resource
+          print('Adaptive, round, monochrome and legacy launcher icon resources installed.')
           PY
 
-      - name: Sync application into Android
-        run: npx cap sync android
 
       - name: Build debug APK
         working-directory: android
