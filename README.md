@@ -147,3 +147,16 @@ A implementação continua sendo um editor Canvas 2D compacto. Ainda não oferec
 O workflow publica um APK de depuração assinado automaticamente com a chave de depuração temporária do runner. Esse APK serve para testes e não garante atualização de uma instalação assinada com outro certificado.
 
 A assinatura de uma versão de distribuição deve usar uma keystore nova, criada e mantida fora do repositório, com os dados armazenados exclusivamente nos GitHub Actions Secrets. A keystore anteriormente versionada foi exposta e não deve ser reutilizada. A exclusão do arquivo da versão atual não remove cópias presentes no histórico Git.
+
+
+## Lettering e tipografia — atualização 1.0
+
+- Motor tipográfico compartilhado para textos, diálogos em balões e onomatopeias.
+- Editor de texto ligado à seleção do Canvas: o conteúdo e os atributos do objeto selecionado podem ser alterados sem recriá-lo.
+- Controles de família tipográfica, tamanho, peso, itálico, alinhamento, entrelinhas, espaçamento entre letras, cor, contorno, margem interna e alinhamento vertical.
+- Caixas de texto redimensionáveis, quebra automática de linhas e preservação de quebras manuais.
+- Importação local de fontes TTF, OTF, WOFF e WOFF2 (limite de 600 KB por arquivo). A fonte é incorporada ao JSON do projeto para acompanhar a HQ e restaurada ao reabrir/importar o projeto.
+- O sistema não baixa fontes da internet e não depende de conexão. As famílias padrão são fontes comuns do sistema e podem variar entre plataformas; a importação de fonte licenciada pelo usuário fornece consistência entre dispositivos.
+- O projeto mantém os objetos tipográficos editáveis no JSON; PNG, ZIP e CBZ recebem a renderização final do Canvas.
+
+**Licenciamento de fontes:** importe somente arquivos de fonte cuja licença permita incorporação e compartilhamento no projeto exportado. O Quadra não distribui fontes comerciais ou proprietárias.

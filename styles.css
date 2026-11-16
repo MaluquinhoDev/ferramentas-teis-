@@ -480,3 +480,14 @@
   font-size: 11px;
   line-height: 1.5;
 }
+
+/* Lettering and typography controls */
+.typography-panel .type-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.typography-panel .type-grid label{min-width:0}
+.typography-panel output{display:block;color:var(--muted);font-size:11px;font-variant-numeric:tabular-nums}
+.typography-panel input[type=range]{width:100%;accent-color:var(--accent)}
+.typography-panel input[type=color]{width:100%;min-height:38px;padding:3px}
+.typography-panel input[type=file]{width:100%;min-width:0;font-size:11px}
+.typography-panel textarea{width:100%;min-height:76px;resize:vertical}
+.typography-panel .hint{display:block;color:var(--muted);font-size:11px;line-height:1.5;margin-top:7px}
+@media(max-width:600px){.typography-panel .type-grid{grid-template-columns:1fr 1fr}}
