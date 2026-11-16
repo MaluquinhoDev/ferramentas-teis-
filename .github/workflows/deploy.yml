@@ -76,6 +76,11 @@ jobs:
           grep -Fq './quadra-icon.png' manifest.webmanifest
           node --check app.js
           node --check quests.js
+          grep -Fq 'id="typographyPanel"' index.html
+          grep -Fq 'id="fontUpload"' index.html
+          grep -Fq 'function drawTextBlock' app.js
+          grep -Fq 'function loadCustomFonts' app.js
+          grep -Fq 'quadra-v6' sw.js
           node -e "const p=require('./package.json'); if(!p.dependencies['@capacitor/android']) process.exit(1)"
           python - <<'PY'
           import json
