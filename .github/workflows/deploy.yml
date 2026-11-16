@@ -81,6 +81,11 @@ jobs:
           grep -Fq 'function drawTextBlock' app.js
           grep -Fq 'function loadCustomFonts' app.js
           grep -Fq 'quadra-v6' sw.js
+          grep -Fq 'id="publicationPanel"' index.html
+          grep -Fq 'id="exportFliptru"' index.html
+          grep -Fq 'pagesDouble' app.js
+          grep -Fq 'metadados-fliptru.json' app.js
+          grep -Fq 'quadra-v7' sw.js
           node -e "const p=require('./package.json'); if(!p.dependencies['@capacitor/android']) process.exit(1)"
           python - <<'PY'
           import json
