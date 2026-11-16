@@ -160,3 +160,13 @@ A assinatura de uma versão de distribuição deve usar uma keystore nova, criad
 - O projeto mantém os objetos tipográficos editáveis no JSON; PNG, ZIP e CBZ recebem a renderização final do Canvas.
 
 **Licenciamento de fontes:** importe somente arquivos de fonte cuja licença permita incorporação e compartilhamento no projeto exportado. O Quadra não distribui fontes comerciais ou proprietárias.
+
+
+## Preparação editorial para Fliptru — atualização 1.1
+
+- Cadastro local de autoria, sinopse, categoria e classificação indicativa no projeto.
+- Metadados editoriais preservados no JSON e restaurados na importação.
+- Marcação de páginas duplas por página, preservada ao duplicar, excluir e reordenar páginas.
+- Exportação de pacote ZIP com páginas JPEG numeradas, metadados JSON e instruções de revisão.
+- Validação dos campos editoriais essenciais e da largura de 900 px antes da exportação.
+- O pacote é uma preparação para envio manual; não realiza publicação nem presume que os formatos aceitos pela Fliptru permaneçam invariáveis. Conferir as instruções atuais da plataforma antes do envio.
